@@ -1,1 +1,7 @@
-{ "cleanUrls": true, "trailingSlash": false }
+{ "cleanUrls": true, "trailingSlash": false,
+  "redirects": [
+    { "source": "/lap-rap", "destination": "/", "permanent": false },
+    { "source": "/danh-sach-mua", "destination": "/", "permanent": false },
+    { "source": "/mach-in", "destination": "/", "permanent": false }
+  ]
+}
