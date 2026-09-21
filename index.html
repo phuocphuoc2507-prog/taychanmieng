@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HFM-Guard — Vệ Binh Trẻ Thơ</title>
+<meta name="description" content="HFM-Guard: thiết bị đeo theo dõi nhịp tim, nhiệt độ và cử động để cảnh báo sớm nguy cơ biến chứng tay chân miệng ở trẻ em. Dự án học sinh — nhóm Vệ Binh Trẻ Thơ.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#F4F8FA;--panel:#fff;--panel2:#EAF1F5;--line:#D5DEE5;--ink:#13212C;--ink2:#566977;--accent:#1F6FA8;--accent2:#0E9AA7;--warm:#F28C0C;--ok:#2E8B57;--alert:#C9352C}
+@media (prefers-color-scheme: dark){:root{--bg:#0E151B;--panel:#162129;--panel2:#1B2731;--line:#2A3945;--ink:#E6EDF3;--ink2:#93A4B2;--accent:#5AA9E6;--accent2:#4FD1C5;--warm:#FFA733;--ok:#5FC08A;--alert:#F07167}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Sora,"Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.65}
+a{color:var(--accent)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:-.01em;text-decoration:none;color:var(--ink)}
+.brand span{color:var(--accent)}
+nav a{margin-left:16px;font-size:14px;font-weight:600;text-decoration:none;color:var(--ink2)}
+nav a:hover{color:var(--accent)}
+.hero{padding:64px 0 40px}
+.eyebrow{font:500 12px "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2)}
+h1{font-size:clamp(30px,5vw,50px);line-height:1.12;letter-spacing:-.02em;margin:10px 0 16px;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lead{font-size:18px;color:var(--ink2);max-width:720px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.btn{display:inline-block;padding:12px 20px;border-radius:8px;font-weight:700;text-decoration:none;border:1.5px solid var(--accent)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.ghost{color:var(--accent)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:36px 0 0}
+.kpi div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.kpi b{display:block;font-size:28px;letter-spacing:-.01em}
+.kpi span{font-size:13px;color:var(--ink2)}
+section{padding:44px 0;border-top:1px solid var(--line)}
+h2{font-size:26px;letter-spacing:-.01em;margin:0 0 8px}
+.sub{color:var(--ink2);margin:0 0 24px;max-width:760px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+.card h3{margin:6px 0 6px;font-size:18px}
+.card p{margin:0;color:var(--ink2);font-size:15px}
+.tag{font:500 11px "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--warm)}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.flow div{padding:18px;border-right:1px solid var(--line)}
+.flow div:last-child{border-right:0}
+.flow b{display:block;font-size:13px;color:var(--accent2);font-family:"IBM Plex Mono",monospace;margin-bottom:4px}
+.pages a.card{display:block;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s}
+.pages a.card:hover{transform:translateY(-3px);border-color:var(--accent)}
+.pages .go{display:inline-block;margin-top:12px;font-weight:700;color:var(--accent)}
+figure{margin:0}
+figure img{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);display:block;background:#fff}
+figcaption{font-size:13px;color:var(--ink2);margin-top:8px}
+.two{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;align-items:center}
+@media(max-width:800px){.two{grid-template-columns:1fr}nav a{margin-left:10px}}
+table{width:100%;border-collapse:collapse;font-size:15px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+tr:last-child td{border-bottom:0}
+.note{background:var(--panel2);border-left:4px solid var(--alert);padding:14px 16px;border-radius:0 8px 8px 0;font-size:15px}
+footer{padding:32px 0 48px;color:var(--ink2);font-size:14px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="./">HFM-<span>Guard</span> · Vệ Binh Trẻ Thơ</a>
+  <nav><a href="#van-de">Vấn đề</a><a href="#hoat-dong">Hoạt động</a><a href="#san-pham">Sản phẩm</a><a href="#tai-lieu">Tài liệu</a></nav>
+</div></header>
+
+<main class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Dự án học sinh · Thiết kế vi mạch cho đô thị thông minh</div>
+    <h1>Người canh gác thầm lặng cho trẻ mắc <em>tay chân miệng</em></h1>
+    <p class="lead">HFM-Guard là thiết bị đeo ở bắp tay, theo dõi liên tục <b>thân nhiệt, nhịp tim và cử động</b> của trẻ. Khi ba dấu hiệu chuyển nặng xuất hiện cùng lúc, thiết bị hú còi, chớp đèn và báo về điện thoại của phụ huynh — kể cả lúc nửa đêm.</p>
+    <div class="cta"><a class="btn primary" href="lap-rap.html">Xem hướng dẫn lắp 3D</a><a class="btn ghost" href="#hoat-dong">Thiết bị hoạt động thế nào</a></div>
+    <div class="kpi">
+      <div><b>25.094</b><span>ca tay chân miệng trong gần 3 tháng đầu năm 2026 (theo Bộ Y tế)</span></div>
+      <div><b>99,3%</b><span>người bệnh là trẻ dưới 10 tuổi</span></div>
+      <div><b>24 giờ</b><span>là đủ để bệnh chuyển từ nhẹ sang biến chứng thần kinh, tim, phổi</span></div>
+    </div>
+  </div>
+
+  <section id="van-de">
+    <h2>Vì sao cần thiết bị này</h2>
+    <p class="sub">Điều nguy hiểm của tay chân miệng không nằm ở nốt ban hay cơn sốt nhẹ ban đầu, mà ở tốc độ trở nặng. Ba dấu hiệu báo trước rất khó thấy bằng mắt thường, nhất là khi trẻ đang ngủ.</p>
+    <div class="grid3">
+      <div class="card"><div class="tag">Dấu hiệu 1</div><h3>Sốt cao khó hạ</h3><p>Thân nhiệt từ 39 °C kéo dài, không đáp ứng thuốc hạ sốt.</p></div>
+      <div class="card"><div class="tag">Dấu hiệu 2</div><h3>Mạch nhanh</h3><p>Nhịp tim trên 150 lần/phút trong lúc trẻ đang nằm yên.</p></div>
+      <div class="card"><div class="tag">Dấu hiệu 3</div><h3>Giật mình chới với</h3><p>Những cơn rung giật ngắn, lặp lại khi trẻ ít vận động hoặc đang ngủ.</p></div>
+    </div>
+  </section>
+
+  <section id="hoat-dong">
+    <h2>Thiết bị hoạt động thế nào</h2>
+    <p class="sub">Ba cảm biến đo liên tục; vi điều khiển so chéo ba luồng số liệu để phân biệt trẻ đang chơi với trẻ đang co giật, rồi mới báo động.</p>
+    <div class="flow">
+      <div><b>01 · ĐO</b>Cảm biến nhiệt độ, cảm biến quang đo nhịp tim, cảm biến gia tốc — áp sát da ở mặt trong bắp tay.</div>
+      <div><b>02 · XỬ LÝ</b>ESP32-S3 lọc nhiễu, tính trung bình, so với ngưỡng theo hướng dẫn của Bộ Y tế.</div>
+      <div><b>03 · SO CHÉO</b>Rung giật chỉ tính là bất thường khi trẻ đang nằm yên và kèm sốt hoặc mạch nhanh.</div>
+      <div><b>04 · CẢNH BÁO</b>Còi và đèn tại chỗ; số đo gửi về ứng dụng điện thoại qua Bluetooth.</div>
+    </div>
+  </section>
+
+  <section id="san-pham">
+    <h2>Sản phẩm</h2>
+    <p class="sub">Bản dự thi dùng các mô-đun có sẵn lắp trong hộp in 3D tự thiết kế. Song song, nhóm đã thiết kế xong mạch in thu nhỏ cho bước tiếp theo.</p>
+    <div class="two">
+      <figure><img src="assets/hop_v09.jpg" alt="Năm chi tiết in 3D của hộp HFM-Guard v0.9" loading="lazy"><figcaption>Hộp v0.9: 5 chi tiết in 3D, in không cần giá đỡ, mọi thành dày từ 1,2 mm.</figcaption></figure>
+      <table>
+        <tr><th>Thông số</th><th>Bản dự thi (v0.9)</th></tr>
+        <tr><td>Kích thước</td><td>36 × 62 × 24 mm</td></tr>
+        <tr><td>Vi điều khiển</td><td>ESP32-S3 (Bluetooth LE + WiFi)</td></tr>
+        <tr><td>Nhịp tim</td><td>MAX30102 (quang học)</td></tr>
+        <tr><td>Nhiệt độ</td><td>MAX30205 (±0,1 °C)</td></tr>
+        <tr><td>Cử động</td><td>ADXL362 (3 trục)</td></tr>
+        <tr><td>Hiển thị · cảnh báo</td><td>OLED 0,96" · còi · đèn</td></tr>
+        <tr><td>Pin</td><td>LiPo 300 mAh, sạc USB-C</td></tr>
+      </table>
+    </div>
+    <div class="two" style="margin-top:28px">
+      <table>
+        <tr><th>Hướng phát triển</th><th>Mạch in thu nhỏ</th></tr>
+        <tr><td>Kích thước mạch</td><td>26 × 42 mm, 4 lớp</td></tr>
+        <tr><td>Linh kiện</td><td>57 con, gắn máy 2 mặt</td></tr>
+        <tr><td>Cảm biến da</td><td>Nằm mặt dưới, áp thẳng vào da</td></tr>
+        <tr><td>Cảm biến nhiệt</td><td>Đặt trên "bán đảo" có khe cách nhiệt</td></tr>
+        <tr><td>Kiểm tra luật thiết kế</td><td>0 lỗi, 0 mối nối hở</td></tr>
+        <tr><td>Hộp dự kiến</td><td>≈ 30 × 46 × 12 mm</td></tr>
+      </table>
+      <figure><img src="assets/pcb_3d.jpg" alt="Ảnh dựng 3D mạch in HFM-Guard" loading="lazy"><figcaption>Mạch in thiết kế bằng KiCad. <a href="mach-in.html">Xem chi tiết →</a></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="tai-lieu" class="pages">
+    <h2>Tài liệu mở</h2>
+    <p class="sub">Ai cũng có thể làm theo. Mọi bước đều có mô hình 3D xoay được.</p>
+    <div class="grid3">
+      <a class="card" href="lap-rap.html"><div class="tag">105 bước</div><h3>Hướng dẫn lắp trong 3D</h3><p>Từng linh kiện rơi vào chỗ, từng sợi dây vẽ từ chân này sang chân kia, có bước kiểm sau mỗi đoạn.</p><span class="go">Mở trang →</span></a>
+      <a class="card" href="danh-sach-mua.html"><div class="tag">11 món</div><h3>Danh sách mua</h3><p>Những gì cần mua, quy cách phải đo khi mua, và những thứ cần sửa trên mô-đun có sẵn.</p><span class="go">Mở trang →</span></a>
+      <a class="card" href="mach-in.html"><div class="tag">KiCad</div><h3>Mạch in thu nhỏ</h3><p>Ảnh hai mặt mạch, sơ đồ chân, các quyết định thiết kế và những điều còn phải làm.</p><span class="go">Mở trang →</span></a>
+    </div>
+  </section>
+
+  <section>
+    <div class="note"><b>Lưu ý quan trọng.</b> HFM-Guard là mẫu thử nghiệm do học sinh thực hiện, chưa qua kiểm định y tế. Thiết bị chỉ hỗ trợ theo dõi, <b>không thay thế chẩn đoán và chỉ định của bác sĩ</b>. Khi trẻ có dấu hiệu bất thường, hãy đưa trẻ đến cơ sở y tế ngay.</div>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  Nhóm <b>Vệ Binh Trẻ Thơ</b> — Trường TH, THCS, THPT Ngô Thời Nhiệm · Dự án dự thi "Thiết kế vi mạch cho đô thị thông minh" lần thứ 3, bảng Học sinh.<br>
+  Số liệu dịch tễ trích theo hệ thống giám sát bệnh truyền nhiễm của Bộ Y tế, năm 2026.
+</div></footer>
+</body>
+</html>
