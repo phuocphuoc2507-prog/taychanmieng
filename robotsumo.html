@@ -67,6 +67,7 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
 <body>
 <div class="wrap">
   <a href="/" style="display:inline-block;margin-bottom:12px;color:var(--gold);font-weight:700;text-decoration:none">← HFM-Guard</a>
+
   <header>
     <div class="kicker">Robot Sumo K26 · Mô phỏng theo xe CAD thật</div>
     <h1>Sàn Đấu Code Sumo</h1>
@@ -268,8 +269,8 @@ function resetMatch(){
   cancelAnimationFrame(raf); running=false; tsim=0;
   const off=(Math.random()-0.5)*0.12;
   robots=[
-    {x:off,y:0.26,th:-Math.PI/2,v:0,col:getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},   // XE CỦA BẠN: dưới, hướng LÊN
-    {x:-off,y:-0.26,th:Math.PI/2,v:0,col:getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: trên, hướng XUỐNG
+    {x:off,y:0.26,th:-Math.PI/2,v:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},   // XE CỦA BẠN: dưới, hướng LÊN
+    {x:-off,y:-0.26,th:Math.PI/2,v:0,col:pickedColorB||getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: trên, hướng XUỐNG
   ];
   draw(); $("status").textContent="Sẵn sàng — bấm ĐẤU"; $("status").style.color="var(--fg)";
 }
@@ -465,18 +466,20 @@ const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const SB_H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY,"Content-Type":"application/json"};
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
 let rosterMap={}, onlineR=null, onlineB=null;
+let pickedColorR=null, pickedColorB=null; // màu xe đã chọn từ sân chung
 
 async function loadRoster(){
   try{
-    const r=await fetch(SB_URL+"/rest/v1/sumo_robot?select=id,ten,thang,thua&order=thang.desc,thua.asc,created_at.asc",{headers:SB_H});
+    const r=await fetch(SB_URL+"/rest/v1/sumo_robot?select=id,ten,thang,thua,mau&order=thang.desc,thua.asc,created_at.asc",{headers:SB_H});
     const rows=await r.json(); if(!Array.isArray(rows)) throw 0;
     rosterMap={}; rows.forEach(x=>rosterMap[x.id]=x);
     const bxh=$("bxh");
     bxh.innerHTML = rows.length? "" : '<tr><td colspan="4" style="padding:10px;color:var(--muted)">Chưa có xe nào. Bấm 🚀 Gửi lên sân.</td></tr>';
-    rows.forEach((x,i)=>bxh.insertAdjacentHTML("beforeend",
-      `<tr><td style="padding:6px 10px">${i+1}</td><td style="padding:6px 10px">${esc(x.ten)}</td>`+
+    rows.forEach((x,i)=>{const dot=`<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${esc(x.mau||'#888')};margin-right:7px;vertical-align:-1px;border:1px solid rgba(0,0,0,.25)"></span>`;
+      bxh.insertAdjacentHTML("beforeend",
+      `<tr><td style="padding:6px 10px">${i+1}</td><td style="padding:6px 10px">${dot}${esc(x.ten)}</td>`+
       `<td style="padding:6px 10px;text-align:center;color:var(--good);font-weight:600">${x.thang}</td>`+
-      `<td style="padding:6px 10px;text-align:center;color:var(--muted)">${x.thua}</td></tr>`));
+      `<td style="padding:6px 10px;text-align:center;color:var(--muted)">${x.thua}</td></tr>`);});
     ["pickR","pickB"].forEach(id=>{const sel=$(id),cur=sel.value;
       sel.innerHTML='<option value="">— chọn xe —</option>';
       rows.forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=x.ten+" ("+x.thang+"T/"+x.thua+"B)";sel.appendChild(o)});
@@ -484,24 +487,33 @@ async function loadRoster(){
     $("msgNet").className="msg";$("msgNet").textContent="";
   }catch(e){$("msgNet").className="msg err";$("msgNet").textContent="⚠️ Không tải được sân chung (kiểm tra mạng).";}
 }
+function mauNgauNhien(){ // màu tươi, dễ phân biệt trên sân
+  const h=Math.floor(Math.random()*360);
+  function f(n){const k=(n+h/30)%12,c=0.62-0.42*Math.max(-1,Math.min(k-3,9-k,1));
+    return Math.round(255*c).toString(16).padStart(2,"0");}
+  return "#"+f(0)+f(8)+f(4);
+}
 async function guiXe(nameId,codeId,msgId){
   const ten=$(nameId).value.trim(), code=$(codeId).value;
   if(!ten){$(msgId).className="msg err";$(msgId).textContent="Nhập TÊN trước khi gửi lên sân";return;}
   if(!compile(code,$(msgId))) return; // code lỗi thì không gửi
   try{
-    const r=await fetch(SB_URL+"/rest/v1/sumo_robot",{method:"POST",headers:SB_H,body:JSON.stringify({ten,code})});
+    const mau=mauNgauNhien();
+    const r=await fetch(SB_URL+"/rest/v1/sumo_robot",{method:"POST",headers:SB_H,body:JSON.stringify({ten,code,mau})});
     if(!r.ok) throw 0;
     $(msgId).className="msg ok";$(msgId).textContent="🚀 Đã gửi \""+ten+"\" lên sân chung!";
     loadRoster();
   }catch(e){$(msgId).className="msg err";$(msgId).textContent="Gửi thất bại (mạng?).";}
 }
 async function chonDoiThu(pickId,codeId,nameId,nmId,side){
-  const id=$(pickId).value; if(!id){ if(side==="R")onlineR=null;else onlineB=null; return; }
+  const id=$(pickId).value;
+  if(!id){ if(side==="R"){onlineR=null;pickedColorR=null;} else {onlineB=null;pickedColorB=null;} resetMatch(); return; }
   try{
-    const r=await fetch(SB_URL+"/rest/v1/sumo_robot?select=ten,code&id=eq."+id,{headers:SB_H});
+    const r=await fetch(SB_URL+"/rest/v1/sumo_robot?select=ten,code,mau&id=eq."+id,{headers:SB_H});
     const rows=await r.json(); const row=rows&&rows[0]; if(!row) return;
     $(codeId).value=row.code; persist(); $(nameId).value=row.ten; $(nmId).textContent=row.ten;
-    if(side==="R")onlineR=id; else onlineB=id;
+    if(side==="R"){onlineR=id;pickedColorR=row.mau||null;} else {onlineB=id;pickedColorB=row.mau||null;}
+    resetMatch(); // vẽ lại xe theo đúng màu vừa chọn
   }catch(e){}
 }
 async function capNhatDiem(id,win){
