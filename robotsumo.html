@@ -98,7 +98,9 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
           <tr><td>Thân (dài×rộng)</td><td>175×160 mm</td></tr>
           <tr><td>Khối lượng</td><td>1,9 kg</td></tr>
           <tr><td>Sân (đường kính)</td><td>1,30 m</td></tr>
-          <tr><td>Tầm thấy đối thủ</td><td>≤1,0 m, trước ±120°</td></tr>
+          <tr><td>Hồng ngoại</td><td>3 mắt, ~45cm</td></tr>
+          <tr><td>Siêu âm</td><td>trước mặt ~1,2m</td></tr>
+          <tr><td>Dò mép</td><td>4 góc (viền trắng)</td></tr>
           <tr><td>Hết giờ 60s</td><td>ai gần tâm hơn thắng</td></tr>
         </table>
         <p class="muted" style="margin:8px 0 0;font-size:.8rem">Cùng phần cứng — <b>chỉ khác CODE</b>. Ai tối ưu giỏi hơn thì thắng.</p>
@@ -165,10 +167,17 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
     <div style="overflow-x:auto"><table>
       <thead><tr><th>Biến <code>s</code></th><th>Ý nghĩa</th></tr></thead>
       <tbody>
-        <tr><td><code>s.thayDich</code></td><td>true nếu <b>thấy đối thủ</b> (≤1m, trước ±120°)</td></tr>
-        <tr><td><code>s.khoangCach</code></td><td>khoảng cách tới đối thủ (m) — khi thấy</td></tr>
+        <tr><td colspan="2" style="background:var(--panel2);font-weight:600">🔴 Hồng ngoại (3 mắt, tầm gần ~45cm)</td></tr>
+        <tr><td><code>s.irTrai / s.irGiua / s.irPhai</code></td><td>true nếu mắt IR đó <b>thấy đối thủ</b></td></tr>
+        <tr><td colspan="2" style="background:var(--panel2);font-weight:600">🔵 Siêu âm (chùm trước mặt)</td></tr>
+        <tr><td><code>s.sieuAm</code></td><td>khoảng cách vật phía trước (<b>cm</b>); 999 = không thấy</td></tr>
+        <tr><td colspan="2" style="background:var(--panel2);font-weight:600">🟢 Dò line / mép (4 góc)</td></tr>
+        <tr><td><code>s.lineTT / lineTP / lineST / lineSP</code></td><td>true nếu góc đó <b>thấy viền TRẮNG</b> (TT=trước-trái…)</td></tr>
+        <tr><td colspan="2" style="background:var(--panel2);font-weight:600">⭐ Tiện lợi (suy ra sẵn)</td></tr>
+        <tr><td><code>s.thayDich</code></td><td>true nếu thấy đối thủ (IR hoặc siêu âm gần)</td></tr>
+        <tr><td><code>s.khoangCach</code></td><td>khoảng cách tới đối thủ (<b>cm</b>) — khi thấy</td></tr>
         <tr><td><code>s.gocDich</code></td><td>góc tới đối thủ (rad): <b>+ trái</b>, <b>− phải</b>, 0 = trước mặt</td></tr>
-        <tr><td><code>s.mepTruoc / mepSau / mepTrai / mepPhai</code></td><td>true nếu cảm biến mép phía đó <b>thấy viền TRẮNG</b></td></tr>
+        <tr><td><code>s.mepTruoc / mepSau / mepTrai / mepPhai</code></td><td>gộp nhanh 4 góc line (phía đó thấy TRẮNG)</td></tr>
         <tr><td><code>s.gocVeTam</code></td><td>góc hướng <b>về tâm sân</b> (rad, + trái / − phải)</td></tr>
         <tr><td><code>s.t</code></td><td>thời gian trận (giây)</td></tr>
       </tbody>
@@ -186,13 +195,17 @@ const TEMPLATE=
 // Hàm chạy ~30 lần/giây. Nhận s (cảm biến), trả [trái, phải] mỗi số -1..1.
 //   [1,1]=tiến · [1,-1]=xoay phải · [-1,-1]=lùi · [0.3,1]=rẽ trái tới
 //
-// CẢM BIẾN trong s:
-//   s.thayDich   (bool)  thấy đối thủ chưa
-//   s.khoangCach (m)     khoảng cách tới đối thủ (khi thấy)
-//   s.gocDich    (rad)   +trái / -phải / 0 = trước mặt
-//   s.mepTruoc, s.mepSau, s.mepTrai, s.mepPhai  (bool) cảm biến mép thấy viền TRẮNG
-//   s.gocVeTam   (rad)   hướng về tâm sân (+trái / -phải)
-//   s.t          (giây)
+// CẢM BIẾN trong s (GIỐNG HỆT xe thật):
+//   -- Hồng ngoại (3 mắt, tầm gần ~45cm):
+//   s.irTrai, s.irGiua, s.irPhai   (bool) có đối thủ ở mắt đó
+//   -- Siêu âm (chùm phía trước):
+//   s.sieuAm     (cm)    khoảng cách vật trước mặt (999 = không thấy)
+//   -- Dò line / mép (4 góc, true = thấy viền TRẮNG):
+//   s.lineTT, s.lineTP, s.lineST, s.lineSP
+//   -- Tiện lợi (hệ thống suy ra sẵn cho dễ):
+//   s.thayDich (bool) · s.khoangCach (cm) · s.gocDich (rad +trái/-phải)
+//   s.mepTruoc, s.mepSau, s.mepTrai, s.mepPhai  (gộp 4 góc line)
+//   s.gocVeTam (rad về tâm) · s.t (giây)
 function dauSi(s){
   // B1) Luôn tránh mép trước (kẻo tự lao ra ngoài = thua):
   if (s.mepTruoc) return [-1,-1];
@@ -204,7 +217,7 @@ function dauSi(s){
 }`;
 const PRESETS={"Khung mẫu (template)": TEMPLATE};
 
-const R=0.65, WHITE=0.60, VMAX=0.20, RR=0.09, WB=0.15, TMAX=60, PUSH=1.6;
+const R=0.65, WHITE=0.60, VMAX=0.20, RR=0.09, WB=0.15, TMAX=60, PUSH=1.6, US_NGUONG=40;
 function na(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;}
 let robots, running=false, tsim=0, speedMul=3, raf=0, score={r:0,b:0};
 const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
@@ -256,13 +269,29 @@ function resetMatch(){
 }
 function sensors(me,foe){
   const dx=foe.x-me.x,dy=foe.y-me.y,dist=Math.hypot(dx,dy),ang=na(Math.atan2(dy,dx)-me.th);
-  const see=dist<=1.0&&Math.abs(ang)<=2.094;
+  // --- DÒ LINE / MÉP: 4 góc (true = thấy viền TRẮNG) ---
   const cs=[[RR*0.9,RR*0.8],[RR*0.9,-RR*0.8],[-RR*0.9,RR*0.8],[-RR*0.9,-RR*0.8]];
-  const w=cs.map(c=>{const wx=me.x+c[0]*Math.cos(me.th)-c[1]*Math.sin(me.th);
-    const wy=me.y+c[0]*Math.sin(me.th)+c[1]*Math.cos(me.th);return Math.hypot(wx,wy)>WHITE;});
-  return{thayDich:see,khoangCach:see?dist:999,gocDich:see?ang:0,
+  const w=cs.map(c=>{const wx=me.x+c[0]*Math.cos(me.th)-c[1]*Math.sin(me.th),
+    wy=me.y+c[0]*Math.sin(me.th)+c[1]*Math.cos(me.th);return Math.hypot(wx,wy)>WHITE;});
+  // --- HỒNG NGOẠI: 3 mắt tầm gần (~45cm) ---
+  const inIR=dist<=0.45;
+  const irGiua=inIR&&Math.abs(ang)<=0.35;
+  const irTrai=inIR&&ang>0.18&&ang<1.0;
+  const irPhai=inIR&&ang<-0.18&&ang>-1.0;
+  // --- SIÊU ÂM: chùm phía trước (~1,2m), trả CM ---
+  const thayUS=Math.abs(ang)<=0.35&&dist<=1.2;
+  const sieuAm=thayUS?dist*100:999;
+  // --- TIỆN LỢI (suy ra sẵn) ---
+  const thay=irTrai||irGiua||irPhai||(sieuAm<US_NGUONG);
+  let g=0;
+  if(irTrai&&!irPhai)g=0.5; else if(irPhai&&!irTrai)g=-0.5; else if(thayUS)g=ang;
+  return{
+    irTrai,irGiua,irPhai, sieuAm,
+    lineTT:w[0],lineTP:w[1],lineST:w[2],lineSP:w[3],
+    thayDich:thay, khoangCach:thay?(thayUS?sieuAm:dist*100):999, gocDich:thay?g:0,
     mepTruoc:w[0]||w[1],mepSau:w[2]||w[3],mepTrai:w[0]||w[2],mepPhai:w[1]||w[3],
-    gocVeTam:na(Math.atan2(-me.y,-me.x)-me.th),t:tsim};
+    gocVeTam:na(Math.atan2(-me.y,-me.x)-me.th),t:tsim
+  };
 }
 function callFn(me,foe){
   if(!me.fn)return[0,0];
