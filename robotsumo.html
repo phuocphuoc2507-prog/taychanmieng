@@ -106,8 +106,30 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
     </div>
   </div>
 
+  <section style="margin-top:20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+      <h2 style="font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.1rem;margin:0">🌐 Sân chung online</h2>
+      <button class="btn-sec btn-sm" id="refresh">🔄 Làm mới</button>
+    </div>
+    <p class="muted" style="margin:6px 0 10px">Mỗi người code xong bấm <b>🚀 Gửi lên sân</b> (dưới ô code). Rồi <b>chọn 2 đối thủ</b> từ danh sách chung bên dưới → <b>⚔️ ĐẤU</b>. Ai thắng được +1 vào bảng xếp hạng chung.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+      <label style="flex:1;min-width:150px;color:var(--red);font-weight:600;font-family:var(--display)">ĐỐI THỦ ĐỎ<br><select id="pickR" style="width:100%;max-width:100%;margin-top:4px"></select></label>
+      <label style="flex:1;min-width:150px;color:var(--blue);font-weight:600;font-family:var(--display)">ĐỐI THỦ XANH<br><select id="pickB" style="width:100%;max-width:100%;margin-top:4px"></select></label>
+    </div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.86rem;background:var(--panel2);border:1px solid var(--line);border-radius:8px">
+      <thead><tr>
+        <th style="text-align:left;padding:7px 10px;font-family:var(--display);font-size:.74rem;text-transform:uppercase;color:var(--muted)">#</th>
+        <th style="text-align:left;padding:7px 10px;font-family:var(--display);font-size:.74rem;text-transform:uppercase;color:var(--muted)">Tên xe</th>
+        <th style="padding:7px 10px;font-family:var(--display);font-size:.74rem;text-transform:uppercase;color:var(--good)">Thắng</th>
+        <th style="padding:7px 10px;font-family:var(--display);font-size:.74rem;text-transform:uppercase;color:var(--muted)">Thua</th>
+      </tr></thead>
+      <tbody id="bxh"><tr><td colspan="4" style="padding:10px;color:var(--muted)">Đang tải danh sách…</td></tr></tbody>
+    </table></div>
+    <div class="msg" id="msgNet"></div>
+  </section>
+
   <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:20px">
-    <h2 style="font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;margin:0">Nạp chiến thuật của bạn</h2>
+    <h2 style="font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;margin:0">Nạp / viết chiến thuật</h2>
     <button class="btn-go btn-sm" id="dlTpl">⬇️ Tải code mẫu (template)</button>
   </div>
   <div class="editors">
@@ -117,7 +139,8 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
         <button class="btn-sec btn-sm" id="saveR" title="Lưu vào thư viện máy này">💾</button>
         <button class="btn-sec btn-sm" id="dlR" title="Tải code này về máy (để chia sẻ)">⬇️</button>
         <button class="btn-sec btn-sm" id="upR" title="Nạp file code từ máy">⬆️</button>
-        <input type="file" id="fileR" accept=".txt,.js" hidden></div>
+        <input type="file" id="fileR" accept=".txt,.js" hidden>
+        <button class="btn-go btn-sm" id="guiR" title="Gửi xe này lên sân chung online">🚀 Gửi lên sân</button></div>
       <textarea id="codeR" spellcheck="false"></textarea>
       <div class="msg" id="msgR"></div>
     </div>
@@ -127,7 +150,8 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
         <button class="btn-sec btn-sm" id="saveB" title="Lưu vào thư viện máy này">💾</button>
         <button class="btn-sec btn-sm" id="dlB" title="Tải code này về máy (để chia sẻ)">⬇️</button>
         <button class="btn-sec btn-sm" id="upB" title="Nạp file code từ máy">⬆️</button>
-        <input type="file" id="fileB" accept=".txt,.js" hidden></div>
+        <input type="file" id="fileB" accept=".txt,.js" hidden>
+        <button class="btn-go btn-sm" id="guiB" title="Gửi xe này lên sân chung online">🚀 Gửi lên sân</button></div>
       <textarea id="codeB" spellcheck="false"></textarea>
       <div class="msg" id="msgB"></div>
     </div>
@@ -269,7 +293,9 @@ function finish(w){
   running=false;cancelAnimationFrame(raf);const st=$("status");
   if(!w){st.textContent="🤝 HÒA!";st.style.color="var(--muted)";}
   else{st.textContent="🏆 "+w.name+" THẮNG!";st.style.color=w.col;
-    if(w===robots[0])score.r++;else score.b++;$("scR").textContent=score.r;$("scB").textContent=score.b;}
+    if(w===robots[0])score.r++;else score.b++;$("scR").textContent=score.r;$("scB").textContent=score.b;
+    const winId=(w===robots[0])?onlineR:onlineB, loseId=(w===robots[0])?onlineB:onlineR;
+    capNhatDiem(winId,true); capNhatDiem(loseId,false);}
   draw();return true;
 }
 
@@ -374,6 +400,66 @@ function wireUpload(btnId,inpId,taId,msgId){
 }
 wireUpload("upR","fileR","codeR","msgR");
 wireUpload("upB","fileB","codeB","msgB");
+
+// ---------- SÂN CHUNG ONLINE (Supabase) ----------
+const SB_URL="https://smhdnykzrgabjfsilhch.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtaGRueWt6cmdhYmpmc2lsaGNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3OTA3NzksImV4cCI6MjA5ODM2Njc3OX0.TOE9Ng5YORx8NvFUQizPJ4S393_dCzNHGV7bHHprOnM";
+const SB_H={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY,"Content-Type":"application/json"};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+let rosterMap={}, onlineR=null, onlineB=null;
+
+async function loadRoster(){
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/sumo_robot?select=id,ten,thang,thua&order=thang.desc,thua.asc,created_at.asc",{headers:SB_H});
+    const rows=await r.json(); if(!Array.isArray(rows)) throw 0;
+    rosterMap={}; rows.forEach(x=>rosterMap[x.id]=x);
+    const bxh=$("bxh");
+    bxh.innerHTML = rows.length? "" : '<tr><td colspan="4" style="padding:10px;color:var(--muted)">Chưa có xe nào. Bấm 🚀 Gửi lên sân.</td></tr>';
+    rows.forEach((x,i)=>bxh.insertAdjacentHTML("beforeend",
+      `<tr><td style="padding:6px 10px">${i+1}</td><td style="padding:6px 10px">${esc(x.ten)}</td>`+
+      `<td style="padding:6px 10px;text-align:center;color:var(--good);font-weight:600">${x.thang}</td>`+
+      `<td style="padding:6px 10px;text-align:center;color:var(--muted)">${x.thua}</td></tr>`));
+    ["pickR","pickB"].forEach(id=>{const sel=$(id),cur=sel.value;
+      sel.innerHTML='<option value="">— chọn xe —</option>';
+      rows.forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=x.ten+" ("+x.thang+"T/"+x.thua+"B)";sel.appendChild(o)});
+      if([...sel.options].some(o=>o.value===cur))sel.value=cur;});
+    $("msgNet").className="msg";$("msgNet").textContent="";
+  }catch(e){$("msgNet").className="msg err";$("msgNet").textContent="⚠️ Không tải được sân chung (kiểm tra mạng).";}
+}
+async function guiXe(nameId,codeId,msgId){
+  const ten=$(nameId).value.trim(), code=$(codeId).value;
+  if(!ten){$(msgId).className="msg err";$(msgId).textContent="Nhập TÊN trước khi gửi lên sân";return;}
+  if(!compile(code,$(msgId))) return; // code lỗi thì không gửi
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/sumo_robot",{method:"POST",headers:SB_H,body:JSON.stringify({ten,code})});
+    if(!r.ok) throw 0;
+    $(msgId).className="msg ok";$(msgId).textContent="🚀 Đã gửi \""+ten+"\" lên sân chung!";
+    loadRoster();
+  }catch(e){$(msgId).className="msg err";$(msgId).textContent="Gửi thất bại (mạng?).";}
+}
+async function chonDoiThu(pickId,codeId,nameId,nmId,side){
+  const id=$(pickId).value; if(!id){ if(side==="R")onlineR=null;else onlineB=null; return; }
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/sumo_robot?select=ten,code&id=eq."+id,{headers:SB_H});
+    const rows=await r.json(); const row=rows&&rows[0]; if(!row) return;
+    $(codeId).value=row.code; persist(); $(nameId).value=row.ten; $(nmId).textContent=row.ten;
+    if(side==="R")onlineR=id; else onlineB=id;
+  }catch(e){}
+}
+async function capNhatDiem(id,win){
+  if(!id||!rosterMap[id])return;
+  const cur=rosterMap[id];
+  const body = win? {thang:(cur.thang||0)+1} : {thua:(cur.thua||0)+1};
+  try{ await fetch(SB_URL+"/rest/v1/sumo_robot?id=eq."+id,{method:"PATCH",headers:SB_H,body:JSON.stringify(body)}); }catch(e){}
+  loadRoster();
+}
+$("refresh").onclick=loadRoster;
+$("guiR").onclick=()=>guiXe("nameR","codeR","msgR");
+$("guiB").onclick=()=>guiXe("nameB","codeB","msgB");
+$("pickR").onchange=()=>chonDoiThu("pickR","codeR","nameR","nmR","R");
+$("pickB").onchange=()=>chonDoiThu("pickB","codeB","nameB","nmB","B");
+loadRoster();
+setInterval(loadRoster, 8000); // tự làm mới bảng xếp hạng
 
 window.addEventListener("resize",draw);
 resetMatch();
