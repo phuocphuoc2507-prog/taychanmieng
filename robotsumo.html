@@ -266,8 +266,8 @@ function resetMatch(){
   cancelAnimationFrame(raf); running=false; tsim=0;
   const off=(Math.random()-0.5)*0.12;
   robots=[
-    {x:-0.26,y:off,th:0,v:0,vx:0,vy:0,w:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},        // XE CỦA TÔI: bên TRÁI, hướng SANG PHẢI
-    {x:0.26,y:-off,th:Math.PI,v:0,vx:0,vy:0,w:0,col:pickedColorB||getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: bên PHẢI, hướng SANG TRÁI
+    {x:-0.26,y:off,th:0,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},        // XE CỦA TÔI: bên TRÁI, hướng SANG PHẢI
+    {x:0.26,y:-off,th:Math.PI,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorB||getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: bên PHẢI, hướng SANG TRÁI
   ];
   draw(); $("status").textContent="Sẵn sàng — bấm ĐẤU"; $("status").style.color="var(--fg)";
 }
@@ -306,25 +306,27 @@ function callFn(me,foe){
 function physics(dt){
   for(let i=0;i<2;i++){const r=robots[i],foe=robots[1-i];
     const[l,rr2]=callFn(r,foe);
-    const tv=(l+rr2)/2*VMAX;          // tốc độ MONG MUỐN (bánh)
+    const tv=(l+rr2)/2*VMAX;          // tốc độ MONG MUỐN (bánh = lực ga)
     const tw=(rr2-l)/WB;              // tốc độ xoay mong muốn
     // xoay có đà (bẻ mũi không tức thì)
     r.w=(r.w||0)+(tw-(r.w||0))*Math.min(1,dt/TAU_W); r.th=na(r.th+r.w*dt);
-    // vận tốc là VECTOR, trượt theo đà cũ khi quay mũi (có quán tính + trượt ngang)
-    const dvx=tv*Math.cos(r.th), dvy=tv*Math.sin(r.th), kv=Math.min(1,dt/TAU_V);
-    r.vx=(r.vx||0)+(dvx-(r.vx||0))*kv; r.vy=(r.vy||0)+(dvy-(r.vy||0))*kv;
+    // LỰC ĐẨY (hướng ga hiện tại) — dùng để tính húc
+    r.tvx=tv*Math.cos(r.th); r.tvy=tv*Math.sin(r.th);
+    // vận tốc là VECTOR có quán tính → trượt theo đà cũ khi quay mũi
+    const kv=Math.min(1,dt/TAU_V);
+    r.vx=(r.vx||0)+(r.tvx-(r.vx||0))*kv; r.vy=(r.vy||0)+(r.tvy-(r.vy||0))*kv;
     r.x+=r.vx*dt; r.y+=r.vy*dt;
-    r.v=r.vx*Math.cos(r.th)+r.vy*Math.sin(r.th); // tốc độ tiến (để hiển thị nếu cần)
+    r.v=r.vx*Math.cos(r.th)+r.vy*Math.sin(r.th); // tốc độ tiến (hiển thị nếu cần)
   }
   const a=robots[0],b=robots[1];let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
   if(d<2*RR&&d>1e-6){const nx=dx/d,ny=dy/d,ov=2*RR-d;
     a.x-=nx*ov/2;a.y-=ny*ov/2;b.x+=nx*ov/2;b.y+=ny*ov/2;
-    // đẩy theo chênh lệch vận tốc CHIẾU lên trục va chạm (có đà)
-    const van=a.vx*nx+a.vy*ny, vbn=-(b.vx*nx+b.vy*ny);
-    const net=(van-vbn)*dt*PUSH;
+    // HÚC theo chênh lệch LỰC ĐẨY chiếu lên trục va chạm (ai ga mạnh hơn thì đẩy được)
+    const af=a.tvx*nx+a.tvy*ny, bf=-(b.tvx*nx+b.tvy*ny);
+    const net=(af-bf)*dt*PUSH;
     a.x+=nx*net;a.y+=ny*net;b.x+=nx*net;b.y+=ny*net;
-    // va chạm truyền một phần đà (giúp húc văng)
-    a.vx-=nx*net*2;a.vy-=ny*net*2;b.vx+=nx*net*2;b.vy+=ny*net*2;}
+    // chạm thì hãm bớt đà (đỡ dính, vẫn còn trượt nhẹ)
+    a.vx*=0.9;a.vy*=0.9;b.vx*=0.9;b.vy*=0.9;}
 }
 function checkOut(){
   const o=robots.map(r=>Math.hypot(r.x,r.y)>R);
