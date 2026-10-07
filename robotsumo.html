@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sàn Đấu Code Sumo</title>
+<meta name="description" content="Web mô phỏng robot sumo theo mẫu CAD thật: mỗi người nạp code tối ưu của mình vào xe rồi cho đấu nhau.">
+<style>
+:root{
+  --bg:#0f1218; --panel:#171c25; --panel2:#1d2430; --fg:#e8ecf3; --muted:#8b96a8; --line:#2b333f;
+  --red:#e5484d; --blue:#3b82f6; --gold:#f5c542; --good:#2dd4a7;
+  --display:"Oswald",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#eef1f5; --panel:#fff; --panel2:#f2f5f9; --fg:#1a1f28; --muted:#5a6475; --line:#d6dce4; color-scheme:light;
+}}
+:root[data-theme="light"]{--bg:#eef1f5;--panel:#fff;--panel2:#f2f5f9;--fg:#1a1f28;--muted:#5a6475;--line:#d6dce4;color-scheme:light}
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0;line-height:1.5}
+.wrap{max-width:1000px;margin:0 auto;padding-block:20px;padding-left:16px;padding-right:16px}
+h1{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.03em;font-size:clamp(1.5rem,5vw,2.3rem);margin:0}
+.kicker{font-family:var(--display);text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;color:var(--gold);font-weight:600}
+header{border-bottom:2px solid var(--line);padding-bottom:12px;margin-bottom:16px}
+.arena-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.arena-box{flex:1 1 340px;min-width:300px;display:flex;flex-direction:column;align-items:center}
+canvas{width:100%;max-width:460px;aspect-ratio:1;background:#000;border-radius:50%;border:2px solid var(--line);touch-action:none}
+.side{flex:1 1 230px;min-width:0}
+.status{font-family:var(--display);font-size:1.3rem;text-transform:uppercase;letter-spacing:.03em;min-height:1.6em;text-align:center;margin:8px 0}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+button{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-weight:600;border:0;border-radius:8px;padding:10px 18px;cursor:pointer;font-size:.95rem}
+.btn-go{background:var(--gold);color:#1a1200}
+.btn-sec{background:var(--panel2);color:var(--fg);border:1px solid var(--line)}
+.btn-sm{padding:6px 10px;font-size:.78rem}
+.score{display:flex;gap:14px;justify-content:center;align-items:center;font-family:var(--mono);margin-top:4px}
+.score b{font-size:1.5rem}
+.sc-r{color:var(--red)} .sc-b{color:var(--blue)}
+.spec{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.85rem}
+.spec h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:.82rem;margin:0 0 6px;color:var(--gold)}
+.spec table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.8rem}
+.spec td{padding:2px 0;border-bottom:1px dotted var(--line)}
+.spec td:last-child{text-align:right;color:var(--muted)}
+.editors{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+@media(max-width:680px){.editors{grid-template-columns:1fr}}
+.ed{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;border-top:4px solid var(--c)}
+.ed.red{--c:var(--red)} .ed.blue{--c:var(--blue)}
+.ed-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.ed-head input{flex:1;min-width:70px;background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:6px 8px;font-family:var(--display);font-size:1rem;font-weight:600}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+select{background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:6px;font-family:var(--body);font-size:.82rem;max-width:150px}
+textarea{width:100%;min-height:240px;background:var(--panel2);border:1px solid var(--line);color:var(--fg);border-radius:8px;padding:10px;font-family:var(--mono);font-size:.82rem;line-height:1.45;resize:vertical;tab-size:2}
+.msg{font-family:var(--mono);font-size:.78rem;min-height:1.2em;margin-top:4px;white-space:pre-wrap}
+.msg.err{color:var(--red)} .msg.ok{color:var(--good)}
+section.doc{margin-top:24px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+section.doc h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.1rem;margin:0 0 10px}
+.doc table{width:100%;border-collapse:collapse;font-size:.86rem}
+.doc th,.doc td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+.doc th{background:var(--panel2);font-family:var(--display);text-transform:uppercase;font-size:.72rem;letter-spacing:.03em}
+code{font-family:var(--mono);background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:.85em}
+.doc pre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;font-family:var(--mono);font-size:.8rem}
+.muted{color:var(--muted)}
+footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid var(--line);padding-top:10px}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+</head>
+<body>
+<div class="wrap">
+  <a href="/" style="display:inline-block;margin-bottom:12px;color:var(--gold);font-weight:700;text-decoration:none">← HFM-Guard</a>
+  <header>
+    <div class="kicker">Robot Sumo K26 · Mô phỏng theo xe CAD thật</div>
+    <h1>Sàn Đấu Code Sumo</h1>
+    <p class="muted" style="margin:6px 0 0">Mỗi người <b>nạp code tối ưu của mình</b> vào xe (vẽ theo đúng mẫu CAD của nhóm), <b>lưu lại</b>, rồi cho đấu. Sân đen viền trắng — ra ngoài là thua.</p>
+  </header>
+
+  <div class="arena-row">
+    <div class="arena-box">
+      <canvas id="cv" width="460" height="460"></canvas>
+      <div class="status" id="status">Bấm ĐẤU để bắt đầu</div>
+      <div class="ctrls">
+        <button class="btn-go" id="go">⚔️ Đấu</button>
+        <button class="btn-sec" id="reset">Đặt lại điểm</button>
+        <button class="btn-sec" id="speed">Tốc độ: 3×</button>
+      </div>
+      <div class="score">
+        <span class="sc-r"><b id="scR">0</b> <span id="nmR">Đỏ</span></span>
+        <span class="muted">—</span>
+        <span class="sc-b"><span id="nmB">Xanh</span> <b id="scB">0</b></span>
+      </div>
+    </div>
+    <div class="side">
+      <div class="spec">
+        <h3>Xe (theo CAD — giống nhau 2 bên)</h3>
+        <table>
+          <tr><td>Động cơ</td><td>GA25 60rpm</td></tr>
+          <tr><td>Tốc độ tối đa</td><td>0,20 m/s</td></tr>
+          <tr><td>Xoay tại chỗ</td><td>~150°/s</td></tr>
+          <tr><td>Thân (dài×rộng)</td><td>175×160 mm</td></tr>
+          <tr><td>Khối lượng</td><td>1,9 kg</td></tr>
+          <tr><td>Sân (đường kính)</td><td>1,30 m</td></tr>
+          <tr><td>Tầm thấy đối thủ</td><td>≤1,0 m, trước ±120°</td></tr>
+          <tr><td>Hết giờ 60s</td><td>ai gần tâm hơn thắng</td></tr>
+        </table>
+        <p class="muted" style="margin:8px 0 0;font-size:.8rem">Cùng phần cứng — <b>chỉ khác CODE</b>. Ai tối ưu giỏi hơn thì thắng.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="editors">
+    <div class="ed red">
+      <div class="ed-head"><span class="dot"></span><input id="nameR" value="Đỏ" maxlength="14" title="Tên đấu sĩ">
+        <select id="presetR" title="Chọn chiến thuật"></select>
+        <button class="btn-sec btn-sm" id="saveR">💾 Lưu</button></div>
+      <textarea id="codeR" spellcheck="false"></textarea>
+      <div class="msg" id="msgR"></div>
+    </div>
+    <div class="ed blue">
+      <div class="ed-head"><span class="dot"></span><input id="nameB" value="Xanh" maxlength="14" title="Tên đấu sĩ">
+        <select id="presetB" title="Chọn chiến thuật"></select>
+        <button class="btn-sec btn-sm" id="saveB">💾 Lưu</button></div>
+      <textarea id="codeB" spellcheck="false"></textarea>
+      <div class="msg" id="msgB"></div>
+    </div>
+  </div>
+
+  <section class="doc">
+    <h2>Cách nạp code của bạn</h2>
+    <p><b>1.</b> Gõ tên vào ô tên · <b>2.</b> Viết/sửa hàm <code>dauSi(s)</code> trong ô code · <b>3.</b> Bấm <b>💾 Lưu</b> → chiến thuật của bạn vào <b>thư viện</b> (nhớ trên máy này) · <b>4.</b> Ai cũng chọn lại từ ô "Đã lưu" để đấu.</p>
+    <p>Hàm <code>dauSi(s)</code> chạy ~30 lần/giây: nhận <code>s</code> (cảm biến), trả <code>[trái, phải]</code> = công suất 2 motor (−1..1). <code>[1,1]</code> tiến · <code>[1,-1]</code> xoay phải · <code>[-1,-1]</code> lùi.</p>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Biến <code>s</code></th><th>Ý nghĩa</th></tr></thead>
+      <tbody>
+        <tr><td><code>s.thayDich</code></td><td>true nếu <b>thấy đối thủ</b> (≤1m, trước ±120°)</td></tr>
+        <tr><td><code>s.khoangCach</code></td><td>khoảng cách tới đối thủ (m) — khi thấy</td></tr>
+        <tr><td><code>s.gocDich</code></td><td>góc tới đối thủ (rad): <b>+ trái</b>, <b>− phải</b>, 0 = trước mặt</td></tr>
+        <tr><td><code>s.mepTruoc / mepSau / mepTrai / mepPhai</code></td><td>true nếu cảm biến mép phía đó <b>thấy viền TRẮNG</b></td></tr>
+        <tr><td><code>s.gocVeTam</code></td><td>góc hướng <b>về tâm sân</b> (rad, + trái / − phải)</td></tr>
+        <tr><td><code>s.t</code></td><td>thời gian trận (giây)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted" style="margin-top:10px">Luôn xử lý <b>mép trước tiên</b> kẻo tự lao ra. Dùng <code>Math</code> thoải mái.</p>
+  </section>
+
+  <footer>Mô phỏng vật lý arcade (luyện chiến thuật) + xe vẽ theo mẫu CAD. Chiến thuật lưu trong trình duyệt máy bạn. Robot Sumo K26.</footer>
+</div>
+
+<script>
+const PRESETS={
+"Húc Thẳng":
+`function dauSi(s){
+  if(s.mepTruoc) return [-1,-1];
+  if(s.mepSau)   return [1,1];
+  if(s.thayDich){
+    if(s.gocDich >  0.15) return [0.3,1];
+    if(s.gocDich < -0.15) return [1,0.3];
+    return [1,1];
+  }
+  return [0.6,-0.6];
+}`,
+"Trấn Thủ":
+`function dauSi(s){
+  if(s.mepTruoc||s.mepTrai||s.mepPhai) return [-1,-1];
+  if(s.thayDich){
+    if(Math.abs(s.gocDich)<0.2) return [1,1];
+    return s.gocDich>0 ? [0.2,1] : [1,0.2];
+  }
+  if(s.gocVeTam >  0.3) return [0.2,0.6];
+  if(s.gocVeTam < -0.3) return [0.6,0.2];
+  return [0.35,-0.35];
+}`,
+"Né & Vòng Sườn":
+`function dauSi(s){
+  if(s.mepTruoc) return [-1,-1];
+  if(s.thayDich){
+    if(s.khoangCach<0.25 && Math.abs(s.gocDich)<0.5) return [1,-1];
+    return s.gocDich>0 ? [0.5,1] : [1,0.5];
+  }
+  return [0.5,-0.5];
+}`,
+"Rượt Đuổi":
+`function dauSi(s){
+  if(s.mepTruoc||s.mepTrai||s.mepPhai) return [-1,-1];
+  if(s.thayDich) return s.gocDich>0.1?[0.2,1]:(s.gocDich<-0.1?[1,0.2]:[1,1]);
+  return [0.7,-0.7];
+}`
+};
+
+const R=0.65, WHITE=0.60, VMAX=0.20, RR=0.09, WB=0.15, TMAX=60, PUSH=1.6;
+function na(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;}
+let robots, running=false, tsim=0, speedMul=3, raf=0, score={r:0,b:0};
+const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
+const $=id=>document.getElementById(id);
+
+// ---------- Thư viện chiến thuật (localStorage) ----------
+function loadStrats(){try{return JSON.parse(localStorage.getItem("sumoStrats")||"{}")}catch(e){return{}}}
+function saveStrats(o){try{localStorage.setItem("sumoStrats",JSON.stringify(o))}catch(e){}}
+let STRATS=loadStrats();
+function refreshDrops(){
+  [["presetR","codeR"],["presetB","codeB"]].forEach(([sid])=>{
+    const sel=$(sid), cur=sel.value; sel.innerHTML="";
+    const g1=document.createElement("optgroup");g1.label="Chiến thuật mẫu";
+    Object.keys(PRESETS).forEach(k=>{const o=document.createElement("option");o.value="P:"+k;o.textContent=k;g1.appendChild(o)});
+    sel.appendChild(g1);
+    const ns=Object.keys(STRATS);
+    if(ns.length){const g2=document.createElement("optgroup");g2.label="Đã lưu (của nhóm)";
+      ns.forEach(k=>{const o=document.createElement("option");o.value="S:"+k;o.textContent="★ "+k;g2.appendChild(o)});
+      sel.appendChild(g2);}
+    if([...sel.options].some(o=>o.value===cur)) sel.value=cur;
+  });
+}
+function applyPreset(sel,ta){
+  const v=sel.value;
+  if(v.startsWith("P:")) ta.value=PRESETS[v.slice(2)]||ta.value;
+  else if(v.startsWith("S:")) ta.value=STRATS[v.slice(2)]||ta.value;
+  persist();
+}
+function persist(){try{localStorage.setItem("sumoCodeR",$("codeR").value);localStorage.setItem("sumoCodeB",$("codeB").value);}catch(e){}}
+
+// ---------- Mô phỏng ----------
+function compile(code, msgEl){
+  msgEl.className="msg"; msgEl.textContent="";
+  try{const fn=new Function(code+"\n;return dauSi;")();
+    if(typeof fn!=="function") throw new Error("Chưa có hàm dauSi");
+    return fn;
+  }catch(e){msgEl.className="msg err";msgEl.textContent="Lỗi code: "+e.message;return null;}
+}
+function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||"#888";}
+function nmR(){return $("nameR").value||"Đỏ";} function nmB(){return $("nameB").value||"Xanh";}
+function resetMatch(){
+  cancelAnimationFrame(raf); running=false; tsim=0;
+  const off=(Math.random()-0.5)*0.12;
+  robots=[
+    {x:-0.26,y:off,th:0,v:0,col:getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},
+    {x:0.26,y:-off,th:Math.PI,v:0,col:getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}
+  ];
+  draw(); $("status").textContent="Sẵn sàng — bấm ĐẤU"; $("status").style.color="var(--fg)";
+}
+function sensors(me,foe){
+  const dx=foe.x-me.x,dy=foe.y-me.y,dist=Math.hypot(dx,dy),ang=na(Math.atan2(dy,dx)-me.th);
+  const see=dist<=1.0&&Math.abs(ang)<=2.094;
+  const cs=[[RR*0.9,RR*0.8],[RR*0.9,-RR*0.8],[-RR*0.9,RR*0.8],[-RR*0.9,-RR*0.8]];
+  const w=cs.map(c=>{const wx=me.x+c[0]*Math.cos(me.th)-c[1]*Math.sin(me.th);
+    const wy=me.y+c[0]*Math.sin(me.th)+c[1]*Math.cos(me.th);return Math.hypot(wx,wy)>WHITE;});
+  return{thayDich:see,khoangCach:see?dist:999,gocDich:see?ang:0,
+    mepTruoc:w[0]||w[1],mepSau:w[2]||w[3],mepTrai:w[0]||w[2],mepPhai:w[1]||w[3],
+    gocVeTam:na(Math.atan2(-me.y,-me.x)-me.th),t:tsim};
+}
+function callFn(me,foe){
+  if(!me.fn)return[0,0];
+  let o;try{o=me.fn(sensors(me,foe));}catch(e){me.msg.className="msg err";me.msg.textContent="Lỗi chạy: "+e.message;return[0,0];}
+  if(!Array.isArray(o)||o.length<2||isNaN(o[0])||isNaN(o[1]))return[0,0];
+  return[Math.max(-1,Math.min(1,o[0])),Math.max(-1,Math.min(1,o[1]))];
+}
+function physics(dt){
+  for(let i=0;i<2;i++){const r=robots[i],foe=robots[1-i];
+    const[l,rr2]=callFn(r,foe);const vl=l*VMAX,vr=rr2*VMAX;
+    r.v=(vl+vr)/2;const w=(vr-vl)/WB;r.th=na(r.th+w*dt);
+    r.x+=r.v*Math.cos(r.th)*dt;r.y+=r.v*Math.sin(r.th)*dt;}
+  const a=robots[0],b=robots[1];let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+  if(d<2*RR&&d>1e-6){const nx=dx/d,ny=dy/d,ov=2*RR-d;
+    a.x-=nx*ov/2;a.y-=ny*ov/2;b.x+=nx*ov/2;b.y+=ny*ov/2;
+    const nang=Math.atan2(ny,nx);
+    const af=a.v*Math.cos(a.th-nang),bf=b.v*Math.cos(b.th-(nang+Math.PI));
+    const net=(af-bf)*dt*PUSH;a.x+=nx*net;a.y+=ny*net;b.x+=nx*net;b.y+=ny*net;}
+}
+function checkOut(){
+  const o=robots.map(r=>Math.hypot(r.x,r.y)>R);
+  if(o[0]&&o[1])return finish(null);
+  if(o[0])return finish(robots[1]); if(o[1])return finish(robots[0]);
+  if(tsim>=TMAX){const d0=Math.hypot(robots[0].x,robots[0].y),d1=Math.hypot(robots[1].x,robots[1].y);
+    return finish(Math.abs(d0-d1)<0.02?null:(d0<d1?robots[0]:robots[1]));}
+}
+function finish(w){
+  running=false;cancelAnimationFrame(raf);const st=$("status");
+  if(!w){st.textContent="🤝 HÒA!";st.style.color="var(--muted)";}
+  else{st.textContent="🏆 "+w.name+" THẮNG!";st.style.color=w.col;
+    if(w===robots[0])score.r++;else score.b++;$("scR").textContent=score.r;$("scB").textContent=score.b;}
+  draw();return true;
+}
+
+// ---------- Vẽ xe theo CAD ----------
+function W2S(){return cv.width/(2*R*1.12);}
+function rrect(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);ctx.fill();}
+function draw(){
+  const s=W2S(),cx=cv.width/2,cy=cv.height/2;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle="#0a0a0a";ctx.beginPath();ctx.arc(cx,cy,R*s,0,7);ctx.fill();
+  ctx.strokeStyle="#f3f3f3";ctx.lineWidth=(R-WHITE)*s;ctx.beginPath();ctx.arc(cx,cy,(R+WHITE)/2*s,0,7);ctx.stroke();
+  ctx.strokeStyle="rgba(255,255,255,.15)";ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(cx-9,cy);ctx.lineTo(cx+9,cy);ctx.moveTo(cx,cy-9);ctx.lineTo(cx,cy+9);ctx.stroke();
+  if(robots)for(const r of robots)drawBot(r,s,cx,cy);
+}
+function drawBot(r,s,cx,cy){
+  const px=cx+r.x*s,py=cy+r.y*s,m=s;
+  ctx.save();ctx.translate(px,py);ctx.rotate(r.th);
+  // chassis (mau nguoi choi)
+  ctx.fillStyle=r.col; rrect(-0.07*m,-0.08*m,0.14*m,0.16*m,4*m*0.02+2);
+  // 2 banh den 2 ben (trong wheel well)
+  ctx.fillStyle="#141414";
+  rrect(-0.05*m,0.051*m,0.065*m,0.026*m,2);
+  rrect(-0.05*m,-0.077*m,0.065*m,0.026*m,2);
+  // san trong tham hon
+  ctx.fillStyle="rgba(0,0,0,.25)"; rrect(-0.058*m,-0.046*m,0.11*m,0.092*m,3);
+  // 3 pin xanh giua
+  ctx.fillStyle="#2f72d8";
+  for(const yy of[-0.024,0,0.024]) rrect(-0.036*m,(yy-0.009)*m,0.07*m,0.018*m,2);
+  // board xanh la + IR (chi tiet nho)
+  ctx.fillStyle="#1f9d57"; rrect(0.012*m,-0.012*m,0.03*m,0.024*m,1);
+  // mui ui (nem) phia truoc
+  ctx.fillStyle="#cfd3d8";
+  ctx.beginPath();ctx.moveTo(0.07*m,-0.076*m);ctx.lineTo(0.105*m,-0.05*m);
+  ctx.lineTo(0.105*m,0.05*m);ctx.lineTo(0.07*m,0.076*m);ctx.closePath();ctx.fill();
+  // vien chassis theo mau (noi bat)
+  ctx.strokeStyle=r.col;ctx.lineWidth=2;ctx.globalAlpha=.9;
+  ctx.strokeRect(-0.07*m,-0.08*m,0.14*m,0.16*m);ctx.globalAlpha=1;
+  ctx.restore();
+  ctx.fillStyle=r.col;ctx.font="600 12px Oswald,sans-serif";ctx.textAlign="center";
+  ctx.fillText(r.name,px,py-0.1*s-4);
+}
+let last=0;
+function loop(ts){
+  if(!running)return; if(!last)last=ts;
+  let dt=(ts-last)/1000;last=ts;if(dt>0.05)dt=0.05;
+  const step=dt*speedMul,sub=6,h=step/sub;
+  for(let i=0;i<sub;i++){tsim+=h;physics(h);checkOut();if(!running)break;}
+  draw();
+  if(running){$("status").style.color="var(--fg)";$("status").textContent="⏱️ "+tsim.toFixed(1)+"s";raf=requestAnimationFrame(loop);}
+}
+function start(){
+  const fr=compile($("codeR").value,$("msgR")),fb=compile($("codeB").value,$("msgB"));
+  resetMatch();robots[0].fn=fr;robots[1].fn=fb;robots[0].name=nmR();robots[1].name=nmB();
+  if(!fr||!fb){$("status").textContent="⚠️ Sửa lỗi code trước";return;}
+  running=true;last=0;raf=requestAnimationFrame(loop);
+}
+
+// ---------- UI ----------
+(function restore(){
+  try{const cr=localStorage.getItem("sumoCodeR"),cb=localStorage.getItem("sumoCodeB");
+    $("codeR").value=cr||PRESETS["Húc Thẳng"]; $("codeB").value=cb||PRESETS["Trấn Thủ"];
+  }catch(e){$("codeR").value=PRESETS["Húc Thẳng"];$("codeB").value=PRESETS["Trấn Thủ"];}
+})();
+refreshDrops();
+$("presetR").onchange=()=>applyPreset($("presetR"),$("codeR"));
+$("presetB").onchange=()=>applyPreset($("presetB"),$("codeB"));
+$("codeR").oninput=persist; $("codeB").oninput=persist;
+function doSave(nameId,codeId,msgId){
+  const nm=$(nameId).value.trim(); const msg=$(msgId);
+  if(!nm){msg.className="msg err";msg.textContent="Nhập TÊN trước khi lưu";return;}
+  STRATS[nm]=$(codeId).value; saveStrats(STRATS); refreshDrops();
+  msg.className="msg ok";msg.textContent="✓ Đã lưu \""+nm+"\" vào thư viện";
+  setTimeout(()=>{if(msg.textContent.startsWith("✓")){msg.textContent="";msg.className="msg";}},2500);
+}
+$("saveR").onclick=()=>doSave("nameR","codeR","msgR");
+$("saveB").onclick=()=>doSave("nameB","codeB","msgB");
+$("nameR").oninput=()=>$("nmR").textContent=nmR();
+$("nameB").oninput=()=>$("nmB").textContent=nmB();
+$("go").onclick=start;
+$("reset").onclick=()=>{score={r:0,b:0};$("scR").textContent=0;$("scB").textContent=0;resetMatch();};
+$("speed").onclick=e=>{speedMul=speedMul>=5?1:speedMul+1;e.target.textContent="Tốc độ: "+speedMul+"×";};
+window.addEventListener("resize",draw);
+resetMatch();
+</script>
+
+</body>
+</html>
