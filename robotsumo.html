@@ -75,7 +75,7 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
   </header>
 
   <div style="background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 18%,var(--panel)),var(--panel));border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin-bottom:14px;font-size:.95rem;line-height:1.7">
-    <b>Làm 3 bước:</b> &nbsp;① Viết chiến thuật (bấm <b>⬇️ Tải code mẫu</b> rồi sửa, hoặc dán code) &nbsp;→&nbsp; ② bấm <b>🚀 Gửi lên sân</b> &nbsp;→&nbsp; ③ ở <b>🌐 Sân chung</b> chọn <b>đối thủ</b> rồi <b>⚔️ Đấu</b>. &nbsp;<span class="muted">Xe của bạn ở DƯỚI, đối thủ ở TRÊN.</span>
+    <b>Làm 3 bước:</b> &nbsp;① Viết chiến thuật (bấm <b>📋 Copy khung mẫu</b> rồi sửa, hoặc gõ/dán thẳng vào ô) &nbsp;→&nbsp; ② bấm <b>🚀 Gửi lên sân</b> &nbsp;→&nbsp; ③ ở <b>🌐 Sân chung</b> chọn <b>đối thủ</b> rồi <b>⚔️ Đấu</b>. &nbsp;<span class="muted">Xe của bạn ở DƯỚI, đối thủ ở TRÊN.</span>
   </div>
   <div class="arena-row">
     <div class="arena-box">
@@ -137,7 +137,7 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
 
   <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:20px">
     <h2 style="font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;margin:0">Nạp / viết chiến thuật</h2>
-    <button class="btn-go btn-sm" id="dlTpl">⬇️ Tải code mẫu (template)</button>
+    <button class="btn-go btn-sm" id="copyTpl">📋 Copy khung mẫu</button>
   </div>
   <div class="editors">
     <div class="ed red">
@@ -145,9 +145,8 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
       <div class="ed-head"><span class="dot"></span><input id="nameR" value="Đỏ" maxlength="14" title="Tên xe của bạn">
         <select id="presetR" title="Chọn khung / đã lưu"></select>
         <button class="btn-sec btn-sm" id="saveR" title="Lưu vào thư viện máy này">💾 Lưu</button>
-        <button class="btn-sec btn-sm" id="dlR" title="Tải code này về máy (để chia sẻ)">⬇️ Tải</button>
-        <button class="btn-sec btn-sm" id="upR" title="Nạp file code từ máy">⬆️ Nạp</button>
-        <input type="file" id="fileR" accept=".txt,.js" hidden>
+        <button class="btn-sec btn-sm" id="copyR" title="Copy code này để chia sẻ">📋 Copy</button>
+        <button class="btn-sec btn-sm" id="pasteR" title="Dán code từ clipboard vào ô">📥 Dán</button>
         <button class="btn-go btn-sm" id="guiR" title="Gửi xe này lên sân chung online">🚀 Gửi lên sân</button></div>
       <textarea id="codeR" spellcheck="false"></textarea>
       <div class="msg" id="msgR"></div>
@@ -157,9 +156,8 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
       <div class="ed-head"><span class="dot"></span><input id="nameB" value="Xanh" maxlength="14" title="Tên đối thủ">
         <select id="presetB" title="Chọn khung / đã lưu"></select>
         <button class="btn-sec btn-sm" id="saveB" title="Lưu vào thư viện máy này">💾 Lưu</button>
-        <button class="btn-sec btn-sm" id="dlB" title="Tải code này về máy (để chia sẻ)">⬇️ Tải</button>
-        <button class="btn-sec btn-sm" id="upB" title="Nạp file code từ máy">⬆️ Nạp</button>
-        <input type="file" id="fileB" accept=".txt,.js" hidden>
+        <button class="btn-sec btn-sm" id="copyB" title="Copy code này để chia sẻ">📋 Copy</button>
+        <button class="btn-sec btn-sm" id="pasteB" title="Dán code từ clipboard vào ô">📥 Dán</button>
         <button class="btn-go btn-sm" id="guiB" title="Gửi xe này lên sân chung online">🚀 Gửi lên sân</button></div>
       <textarea id="codeB" spellcheck="false"></textarea>
       <div class="msg" id="msgB"></div>
@@ -167,9 +165,9 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
   </div>
 
   <section class="doc">
-    <h2>Quy trình: tải mẫu → tự code → nạp vào → đấu</h2>
-    <p><b>1.</b> Bấm <b>⬇️ Tải code mẫu</b> → được file khung <code>chienthuat_mau.js</code>. · <b>2.</b> Mở bằng VS Code / Notepad, viết chiến thuật trong <code>dauSi(s)</code>. · <b>3.</b> Quay lại web, bấm <b>⬆️</b> nạp file vào ô (hoặc dán thẳng code). · <b>4.</b> Chọn 2 bên → <b>⚔️ ĐẤU</b>.</p>
-    <p class="muted"><b>Chia sẻ với nhau:</b> bấm <b>⬇️</b> (trên mỗi ô) để tải code của mình thành file rồi gửi cho bạn; người kia bấm <b>⬆️</b> nạp vào để đấu (hoặc copy–paste thẳng). Nút <b>💾</b> lưu vào thư viện trên máy này.</p>
+    <h2>Quy trình: copy mẫu → tự code → dán vào → đấu</h2>
+    <p><b>1.</b> Bấm <b>📋 Copy khung mẫu</b> → dán (Ctrl+V) vào ô code rồi sửa, hoặc gõ thẳng. · <b>2.</b> Viết chiến thuật trong hàm <code>dauSi(s)</code>. · <b>3.</b> Bấm <b>🚀 Gửi lên sân</b> để đưa xe lên sân chung. · <b>4.</b> Chọn 2 bên → <b>⚔️ ĐẤU</b>.</p>
+    <p class="muted"><b>Chia sẻ với nhau:</b> bấm <b>📋 Copy</b> (trên mỗi ô) để chép code của mình rồi gửi qua tin nhắn; người kia dán vào ô (Ctrl+V hoặc nút <b>📥 Dán</b>) để đấu. Nút <b>💾</b> lưu vào thư viện trên máy này.</p>
     <p>Hàm <code>dauSi(s)</code> chạy ~30 lần/giây: nhận <code>s</code> (cảm biến), trả <code>[trái, phải]</code> = công suất 2 motor (−1..1). <code>[1,1]</code> tiến · <code>[1,-1]</code> xoay phải · <code>[-1,-1]</code> lùi.</p>
     <div style="overflow-x:auto"><table>
       <thead><tr><th>Biến <code>s</code></th><th>Ý nghĩa</th></tr></thead>
@@ -437,28 +435,27 @@ $("go").onclick=start;
 $("reset").onclick=()=>{score={r:0,b:0};$("scR").textContent=0;$("scB").textContent=0;resetMatch();};
 $("speed").onclick=e=>{speedMul=speedMul>=5?1:speedMul+1;e.target.textContent="Tốc độ: "+speedMul+"×";};
 $("rays").onclick=e=>{showRays=!showRays;e.target.textContent="👁️ Tia: "+(showRays?"Hiện":"Ẩn");draw();};
-// ---- Tải / nạp file code ----
-function download(fname,text){
-  try{const b=new Blob([text],{type:"text/plain;charset=utf-8"});
-    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fname;
-    document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},800);
-  }catch(e){alert("Trình duyệt chặn tải file (thử mở trang trên trình duyệt thật).");}
+// ---- Copy / Dán code (bằng chữ, không dùng file) ----
+function baoNhanh(msgId,txt,ok){
+  const m=$(msgId); m.className="msg "+(ok?"ok":"err"); m.textContent=txt;
+  setTimeout(()=>{if(m.textContent===txt){m.textContent="";m.className="msg";}},2200);
 }
-$("dlTpl").onclick=()=>download("chienthuat_mau.js",TEMPLATE);
-$("dlR").onclick=()=>download(($("nameR").value||"do")+".js",$("codeR").value);
-$("dlB").onclick=()=>download(($("nameB").value||"xanh")+".js",$("codeB").value);
-function wireUpload(btnId,inpId,taId,msgId){
-  $(btnId).onclick=()=>$(inpId).click();
-  $(inpId).onchange=e=>{const f=e.target.files[0];if(!f)return;
-    const rd=new FileReader();
-    rd.onload=()=>{$(taId).value=rd.result;persist();
-      $(msgId).className="msg ok";$(msgId).textContent="✓ Đã nạp "+f.name;
-      setTimeout(()=>{if($(msgId).textContent.startsWith("✓")){$(msgId).textContent="";$(msgId).className="msg";}},2500);};
-    rd.readAsText(f); e.target.value="";};
+async function copyCode(text,msgId){
+  try{ await navigator.clipboard.writeText(text); baoNhanh(msgId,"📋 Đã copy! Dán (Ctrl+V) để chia sẻ.",true); }
+  catch(e){ // fallback: bôi đen ô cho người dùng tự Ctrl+C
+    baoNhanh(msgId,"Trình duyệt chặn copy — hãy bôi đen rồi Ctrl+C.",false); }
 }
-wireUpload("upR","fileR","codeR","msgR");
-wireUpload("upB","fileB","codeB","msgB");
+async function danCode(taId,msgId){
+  try{ const t=await navigator.clipboard.readText();
+    if(!t){baoNhanh(msgId,"Clipboard trống — copy code trước đã.",false);return;}
+    $(taId).value=t; persist(); baoNhanh(msgId,"📥 Đã dán code vào ô.",true);
+  }catch(e){ baoNhanh(msgId,"Trình duyệt chặn dán — bấm vào ô rồi Ctrl+V nhé.",false); }
+}
+$("copyTpl").onclick=()=>copyCode(TEMPLATE,"msgR");
+$("copyR").onclick=()=>copyCode($("codeR").value,"msgR");
+$("copyB").onclick=()=>copyCode($("codeB").value,"msgB");
+$("pasteR").onclick=()=>danCode("codeR","msgR");
+$("pasteB").onclick=()=>danCode("codeB","msgB");
 
 // ---------- SÂN CHUNG ONLINE (Supabase) ----------
 const SB_URL="https://smhdnykzrgabjfsilhch.supabase.co";
