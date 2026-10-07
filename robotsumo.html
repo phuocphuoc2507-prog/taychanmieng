@@ -75,7 +75,7 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
   </header>
 
   <div style="background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 18%,var(--panel)),var(--panel));border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin-bottom:14px;font-size:.95rem;line-height:1.7">
-    <b>Làm 3 bước:</b> &nbsp;① Viết chiến thuật (bấm <b>📋 Copy khung mẫu</b> rồi sửa, hoặc gõ/dán thẳng vào ô) &nbsp;→&nbsp; ② bấm <b>🚀 Gửi lên sân</b> &nbsp;→&nbsp; ③ ở <b>🌐 Sân chung</b> chọn <b>đối thủ</b> rồi <b>⚔️ Đấu</b>. &nbsp;<span class="muted">Xe của bạn ở DƯỚI, đối thủ ở TRÊN.</span>
+    <b>Làm 3 bước:</b> &nbsp;① <b>Chọn xe của tôi</b> (bên trái) rồi sửa code &nbsp;→&nbsp; ② chọn <b>đối thủ</b> (🎲 random hoặc chọn người) &nbsp;→&nbsp; ③ bấm <b>⚔️ Đấu</b>. &nbsp;<span class="muted">Xe của TÔI luôn ở BÊN TRÁI, đối thủ BÊN PHẢI. Bấm 🚀 để lưu code lên xe của mình.</span>
   </div>
   <div class="arena-row">
     <div class="arena-box">
@@ -88,9 +88,9 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
         <button class="btn-sec" id="rays">👁️ Tia: Hiện</button>
       </div>
       <div class="score">
-        <span class="sc-r"><b id="scR">0</b> <span id="nmR">Đỏ</span></span>
-        <span class="muted">—</span>
-        <span class="sc-b"><span id="nmB">Xanh</span> <b id="scB">0</b></span>
+        <span class="sc-r"><b id="scR">0</b> <span id="nmR">Xe của tôi</span></span>
+        <span class="muted">vs</span>
+        <span class="sc-b"><span id="nmB">Đối thủ</span> <b id="scB">0</b></span>
       </div>
     </div>
     <div class="side">
@@ -118,11 +118,7 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
       <h2 style="font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.1rem;margin:0">🌐 Sân chung online</h2>
       <button class="btn-sec btn-sm" id="refresh">🔄 Làm mới</button>
     </div>
-    <p class="muted" style="margin:6px 0 10px">Mỗi người code xong bấm <b>🚀 Gửi lên sân</b> (dưới ô code). Rồi <b>chọn 2 đối thủ</b> từ danh sách chung bên dưới → <b>⚔️ ĐẤU</b>. Ai thắng được +1 vào bảng xếp hạng chung.</p>
-    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px">
-      <label style="flex:1;min-width:150px;color:var(--red);font-weight:600;font-family:var(--display)">ĐỐI THỦ ĐỎ<br><select id="pickR" style="width:100%;max-width:100%;margin-top:4px"></select></label>
-      <label style="flex:1;min-width:150px;color:var(--blue);font-weight:600;font-family:var(--display)">ĐỐI THỦ XANH<br><select id="pickB" style="width:100%;max-width:100%;margin-top:4px"></select></label>
-    </div>
+    <p class="muted" style="margin:6px 0 10px">Mỗi người <b>chọn xe của mình</b> (ô 🔴 bên trái), sửa code rồi bấm <b>🚀 Lưu lên sân</b>. Chọn đối thủ ở ô 🔵 (🎲 random hoặc chọn người) → <b>⚔️ Đấu</b>. Ai thắng được +1 vào bảng xếp hạng chung.</p>
     <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.86rem;background:var(--panel2);border:1px solid var(--line);border-radius:8px">
       <thead><tr>
         <th style="text-align:left;padding:7px 10px;font-family:var(--display);font-size:.74rem;text-transform:uppercase;color:var(--muted)">#</th>
@@ -141,25 +137,24 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
   </div>
   <div class="editors">
     <div class="ed red">
-      <div style="font:700 .82rem var(--display);color:var(--red);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px">🔴 Xe của BẠN (phía dưới)</div>
-      <div class="ed-head"><span class="dot"></span><input id="nameR" value="Đỏ" maxlength="14" title="Tên xe của bạn">
-        <select id="presetR" title="Chọn khung / đã lưu"></select>
+      <div style="font:700 .82rem var(--display);color:var(--red);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px">🔴 Xe của TÔI (bên trái)</div>
+      <div class="ed-head"><span class="dot" id="dotR"></span>
+        <select id="myCar" title="Chọn xe của bạn" style="font-weight:600"><option value="">— chọn xe của tôi —</option></select>
+        <select id="presetR" title="Khung mẫu / đã lưu"></select>
         <button class="btn-sec btn-sm" id="saveR" title="Lưu vào thư viện máy này">💾 Lưu</button>
         <button class="btn-sec btn-sm" id="copyR" title="Copy code này để chia sẻ">📋 Copy</button>
         <button class="btn-sec btn-sm" id="pasteR" title="Dán code từ clipboard vào ô">📥 Dán</button>
-        <button class="btn-go btn-sm" id="guiR" title="Gửi xe này lên sân chung online">🚀 Gửi lên sân</button></div>
+        <button class="btn-go btn-sm" id="guiR" title="Lưu code này lên xe của tôi (sân chung)">🚀 Lưu lên sân</button></div>
       <textarea id="codeR" spellcheck="false"></textarea>
       <div class="msg" id="msgR"></div>
     </div>
     <div class="ed blue">
-      <div style="font:700 .82rem var(--display);color:var(--blue);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px">🔵 Đối thủ (phía trên)</div>
-      <div class="ed-head"><span class="dot"></span><input id="nameB" value="Xanh" maxlength="14" title="Tên đối thủ">
-        <select id="presetB" title="Chọn khung / đã lưu"></select>
-        <button class="btn-sec btn-sm" id="saveB" title="Lưu vào thư viện máy này">💾 Lưu</button>
-        <button class="btn-sec btn-sm" id="copyB" title="Copy code này để chia sẻ">📋 Copy</button>
-        <button class="btn-sec btn-sm" id="pasteB" title="Dán code từ clipboard vào ô">📥 Dán</button>
-        <button class="btn-go btn-sm" id="guiB" title="Gửi xe này lên sân chung online">🚀 Gửi lên sân</button></div>
-      <textarea id="codeB" spellcheck="false"></textarea>
+      <div style="font:700 .82rem var(--display);color:var(--blue);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px">🔵 Đối thủ (bên phải)</div>
+      <div class="ed-head"><span class="dot" id="dotB"></span>
+        <select id="pickOpp" title="Chọn đối thủ" style="font-weight:600"><option value="">— chọn đối thủ —</option></select>
+        <button class="btn-go btn-sm" id="randOpp" title="Bốc ngẫu nhiên một đối thủ">🎲 Random</button>
+        <button class="btn-sec btn-sm" id="copyB" title="Copy code đối thủ">📋 Copy</button></div>
+      <textarea id="codeB" spellcheck="false" title="Code của đối thủ (chỉ xem)"></textarea>
       <div class="msg" id="msgB"></div>
     </div>
   </div>
@@ -233,7 +228,7 @@ function loadStrats(){try{return JSON.parse(localStorage.getItem("sumoStrats")||
 function saveStrats(o){try{localStorage.setItem("sumoStrats",JSON.stringify(o))}catch(e){}}
 let STRATS=loadStrats();
 function refreshDrops(){
-  [["presetR","codeR"],["presetB","codeB"]].forEach(([sid])=>{
+  [["presetR","codeR"]].forEach(([sid])=>{
     const sel=$(sid), cur=sel.value; sel.innerHTML="";
     const g1=document.createElement("optgroup");g1.label="Khung mẫu";
     Object.keys(PRESETS).forEach(k=>{const o=document.createElement("option");o.value="P:"+k;o.textContent=k;g1.appendChild(o)});
@@ -262,13 +257,14 @@ function compile(code, msgEl){
   }catch(e){msgEl.className="msg err";msgEl.textContent="Lỗi code: "+e.message;return null;}
 }
 function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||"#888";}
-function nmR(){return $("nameR").value||"Đỏ";} function nmB(){return $("nameB").value||"Xanh";}
+let myName="Xe của tôi", oppName="Đối thủ";
+function nmR(){return myName;} function nmB(){return oppName;}
 function resetMatch(){
   cancelAnimationFrame(raf); running=false; tsim=0;
   const off=(Math.random()-0.5)*0.12;
   robots=[
-    {x:off,y:0.26,th:-Math.PI/2,v:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},   // XE CỦA BẠN: dưới, hướng LÊN
-    {x:-off,y:-0.26,th:Math.PI/2,v:0,col:pickedColorB||getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: trên, hướng XUỐNG
+    {x:-0.26,y:off,th:0,v:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},        // XE CỦA TÔI: bên TRÁI, hướng SANG PHẢI
+    {x:0.26,y:-off,th:Math.PI,v:0,col:pickedColorB||getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: bên PHẢI, hướng SANG TRÁI
   ];
   draw(); $("status").textContent="Sẵn sàng — bấm ĐẤU"; $("status").style.color="var(--fg)";
 }
@@ -418,19 +414,13 @@ function start(){
 })();
 refreshDrops();
 $("presetR").onchange=()=>applyPreset($("presetR"),$("codeR"));
-$("presetB").onchange=()=>applyPreset($("presetB"),$("codeB"));
 $("codeR").oninput=persist; $("codeB").oninput=persist;
-function doSave(nameId,codeId,msgId){
-  const nm=$(nameId).value.trim(); const msg=$(msgId);
-  if(!nm){msg.className="msg err";msg.textContent="Nhập TÊN trước khi lưu";return;}
-  STRATS[nm]=$(codeId).value; saveStrats(STRATS); refreshDrops();
-  msg.className="msg ok";msg.textContent="✓ Đã lưu \""+nm+"\" vào thư viện";
+$("saveR").onclick=()=>{ // lưu code hiện tại vào thư viện máy này (dưới tên xe của tôi)
+  const nm=myName||"xe-cua-toi"; const msg=$("msgR");
+  STRATS[nm]=$("codeR").value; saveStrats(STRATS); refreshDrops();
+  msg.className="msg ok";msg.textContent="✓ Đã lưu \""+nm+"\" vào thư viện máy này";
   setTimeout(()=>{if(msg.textContent.startsWith("✓")){msg.textContent="";msg.className="msg";}},2500);
-}
-$("saveR").onclick=()=>doSave("nameR","codeR","msgR");
-$("saveB").onclick=()=>doSave("nameB","codeB","msgB");
-$("nameR").oninput=()=>$("nmR").textContent=nmR();
-$("nameB").oninput=()=>$("nmB").textContent=nmB();
+};
 $("go").onclick=start;
 $("reset").onclick=()=>{score={r:0,b:0};$("scR").textContent=0;$("scB").textContent=0;resetMatch();};
 $("speed").onclick=e=>{speedMul=speedMul>=5?1:speedMul+1;e.target.textContent="Tốc độ: "+speedMul+"×";};
@@ -455,7 +445,6 @@ $("copyTpl").onclick=()=>copyCode(TEMPLATE,"msgR");
 $("copyR").onclick=()=>copyCode($("codeR").value,"msgR");
 $("copyB").onclick=()=>copyCode($("codeB").value,"msgB");
 $("pasteR").onclick=()=>danCode("codeR","msgR");
-$("pasteB").onclick=()=>danCode("codeB","msgB");
 
 // ---------- SÂN CHUNG ONLINE (Supabase) ----------
 const SB_URL="https://smhdnykzrgabjfsilhch.supabase.co";
@@ -477,10 +466,17 @@ async function loadRoster(){
       `<tr><td style="padding:6px 10px">${i+1}</td><td style="padding:6px 10px">${dot}${esc(x.ten)}</td>`+
       `<td style="padding:6px 10px;text-align:center;color:var(--good);font-weight:600">${x.thang}</td>`+
       `<td style="padding:6px 10px;text-align:center;color:var(--muted)">${x.thua}</td></tr>`);});
-    ["pickR","pickB"].forEach(id=>{const sel=$(id),cur=sel.value;
-      sel.innerHTML='<option value="">— chọn xe —</option>';
+    // Ô "xe của tôi" — liệt kê tất cả xe
+    {const sel=$("myCar"),cur=sel.value||onlineR||"";
+      sel.innerHTML='<option value="">— chọn xe của tôi —</option>';
       rows.forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=x.ten+" ("+x.thang+"T/"+x.thua+"B)";sel.appendChild(o)});
-      if([...sel.options].some(o=>o.value===cur))sel.value=cur;});
+      if([...sel.options].some(o=>o.value===cur))sel.value=cur;}
+    // Ô "đối thủ" — liệt kê mọi xe TRỪ xe của tôi (không tự đấu với mình)
+    {const sel=$("pickOpp"),cur=sel.value||onlineB||"";
+      sel.innerHTML='<option value="">— chọn đối thủ —</option>';
+      rows.forEach(x=>{ if(x.id===onlineR) return; // bỏ xe của mình
+        const o=document.createElement("option");o.value=x.id;o.textContent=x.ten+" ("+x.thang+"T/"+x.thua+"B)";sel.appendChild(o)});
+      if([...sel.options].some(o=>o.value===cur))sel.value=cur; else {sel.value="";}}
     $("msgNet").className="msg";$("msgNet").textContent="";
   }catch(e){$("msgNet").className="msg err";$("msgNet").textContent="⚠️ Không tải được sân chung (kiểm tra mạng).";}
 }
@@ -490,28 +486,59 @@ function mauNgauNhien(){ // màu tươi, dễ phân biệt trên sân
     return Math.round(255*c).toString(16).padStart(2,"0");}
   return "#"+f(0)+f(8)+f(4);
 }
-async function guiXe(nameId,codeId,msgId){
-  const ten=$(nameId).value.trim(), code=$(codeId).value;
-  if(!ten){$(msgId).className="msg err";$(msgId).textContent="Nhập TÊN trước khi gửi lên sân";return;}
-  if(!compile(code,$(msgId))) return; // code lỗi thì không gửi
+function setDot(id,color){const d=$(id);if(d)d.style.background=color||"var(--muted)";}
+
+// --- Lưu code hiện tại LÊN XE CỦA TÔI (cập nhật trên sân chung) ---
+async function luuLenSan(){
+  const msg=$("msgR"), code=$("codeR").value;
+  if(!onlineR){msg.className="msg err";msg.textContent="Chọn XE CỦA TÔI trước đã.";return;}
+  if(!compile(code,msg)) return; // code lỗi thì không gửi
   try{
-    const mau=mauNgauNhien();
-    const r=await fetch(SB_URL+"/rest/v1/sumo_robot",{method:"POST",headers:SB_H,body:JSON.stringify({ten,code,mau})});
+    const r=await fetch(SB_URL+"/rest/v1/sumo_robot?id=eq."+onlineR,{method:"PATCH",headers:SB_H,body:JSON.stringify({code})});
     if(!r.ok) throw 0;
-    $(msgId).className="msg ok";$(msgId).textContent="🚀 Đã gửi \""+ten+"\" lên sân chung!";
-    loadRoster();
-  }catch(e){$(msgId).className="msg err";$(msgId).textContent="Gửi thất bại (mạng?).";}
+    msg.className="msg ok";msg.textContent="🚀 Đã lưu code lên xe \""+myName+"\" trên sân chung!";
+    if(rosterMap[onlineR]) rosterMap[onlineR].code=code;
+    setTimeout(()=>{if(msg.textContent.startsWith("🚀")){msg.textContent="";msg.className="msg";}},2500);
+  }catch(e){msg.className="msg err";msg.textContent="Lưu thất bại (mạng?).";}
 }
-async function chonDoiThu(pickId,codeId,nameId,nmId,side){
-  const id=$(pickId).value;
-  if(!id){ if(side==="R"){onlineR=null;pickedColorR=null;} else {onlineB=null;pickedColorB=null;} resetMatch(); return; }
+
+// --- Chọn XE CỦA TÔI (bên trái) ---
+async function chonXeCuaToi(){
+  const id=$("myCar").value;
+  if(!id){ onlineR=null;pickedColorR=null;myName="Xe của tôi";setDot("dotR",null);loadRoster();resetMatch();return; }
   try{
     const r=await fetch(SB_URL+"/rest/v1/sumo_robot?select=ten,code,mau&id=eq."+id,{headers:SB_H});
-    const rows=await r.json(); const row=rows&&rows[0]; if(!row) return;
-    $(codeId).value=row.code; persist(); $(nameId).value=row.ten; $(nmId).textContent=row.ten;
-    if(side==="R"){onlineR=id;pickedColorR=row.mau||null;} else {onlineB=id;pickedColorB=row.mau||null;}
-    resetMatch(); // vẽ lại xe theo đúng màu vừa chọn
+    const row=(await r.json())[0]; if(!row) return;
+    $("codeR").value=row.code; persist();
+    onlineR=id; pickedColorR=row.mau||null; myName=row.ten; setDot("dotR",pickedColorR);
+    $("nmR").textContent=myName;
+    if(onlineB===id){onlineB=null;pickedColorB=null;oppName="Đối thủ";$("codeB").value="";setDot("dotB",null);$("nmB").textContent=oppName;} // không tự đấu với mình
+    loadRoster(); // cập nhật lại danh sách đối thủ (loại xe mình)
+    resetMatch();
   }catch(e){}
+}
+
+// --- Chọn ĐỐI THỦ (bên phải) ---
+async function chonDoiThu(){
+  const id=$("pickOpp").value;
+  if(!id){ onlineB=null;pickedColorB=null;oppName="Đối thủ";$("codeB").value="";setDot("dotB",null);$("nmB").textContent=oppName;resetMatch();return; }
+  if(id===onlineR){ $("msgB").className="msg err";$("msgB").textContent="Không thể đấu với chính xe của mình!";$("pickOpp").value="";return; }
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/sumo_robot?select=ten,code,mau&id=eq."+id,{headers:SB_H});
+    const row=(await r.json())[0]; if(!row) return;
+    $("codeB").value=row.code;
+    onlineB=id; pickedColorB=row.mau||null; oppName=row.ten; setDot("dotB",pickedColorB);
+    $("nmB").textContent=oppName;
+    resetMatch();
+  }catch(e){}
+}
+
+// --- Bốc ĐỐI THỦ ngẫu nhiên (trừ xe của mình) ---
+function doiThuRandom(){
+  const ids=Object.keys(rosterMap).filter(k=>k!==onlineR);
+  if(!ids.length){$("msgB").className="msg err";$("msgB").textContent="Chưa có đối thủ nào khác trên sân.";return;}
+  const id=ids[Math.floor(Math.random()*ids.length)];
+  $("pickOpp").value=id; chonDoiThu();
 }
 async function capNhatDiem(id,win){
   if(!id||!rosterMap[id])return;
@@ -521,10 +548,10 @@ async function capNhatDiem(id,win){
   loadRoster();
 }
 $("refresh").onclick=loadRoster;
-$("guiR").onclick=()=>guiXe("nameR","codeR","msgR");
-$("guiB").onclick=()=>guiXe("nameB","codeB","msgB");
-$("pickR").onchange=()=>chonDoiThu("pickR","codeR","nameR","nmR","R");
-$("pickB").onchange=()=>chonDoiThu("pickB","codeB","nameB","nmB","B");
+$("guiR").onclick=luuLenSan;
+$("myCar").onchange=chonXeCuaToi;
+$("pickOpp").onchange=chonDoiThu;
+$("randOpp").onclick=doiThuRandom;
 loadRoster();
 setInterval(loadRoster, 8000); // tự làm mới bảng xếp hạng
 
