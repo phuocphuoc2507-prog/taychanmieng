@@ -106,26 +106,37 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
     </div>
   </div>
 
+  <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-top:20px">
+    <h2 style="font-family:var(--display);text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;margin:0">Nạp chiến thuật của bạn</h2>
+    <button class="btn-go btn-sm" id="dlTpl">⬇️ Tải code mẫu (template)</button>
+  </div>
   <div class="editors">
     <div class="ed red">
       <div class="ed-head"><span class="dot"></span><input id="nameR" value="Đỏ" maxlength="14" title="Tên đấu sĩ">
-        <select id="presetR" title="Chọn chiến thuật"></select>
-        <button class="btn-sec btn-sm" id="saveR">💾 Lưu</button></div>
+        <select id="presetR" title="Chọn khung / đã lưu"></select>
+        <button class="btn-sec btn-sm" id="saveR" title="Lưu vào thư viện máy này">💾</button>
+        <button class="btn-sec btn-sm" id="dlR" title="Tải code này về máy (để chia sẻ)">⬇️</button>
+        <button class="btn-sec btn-sm" id="upR" title="Nạp file code từ máy">⬆️</button>
+        <input type="file" id="fileR" accept=".txt,.js" hidden></div>
       <textarea id="codeR" spellcheck="false"></textarea>
       <div class="msg" id="msgR"></div>
     </div>
     <div class="ed blue">
       <div class="ed-head"><span class="dot"></span><input id="nameB" value="Xanh" maxlength="14" title="Tên đấu sĩ">
-        <select id="presetB" title="Chọn chiến thuật"></select>
-        <button class="btn-sec btn-sm" id="saveB">💾 Lưu</button></div>
+        <select id="presetB" title="Chọn khung / đã lưu"></select>
+        <button class="btn-sec btn-sm" id="saveB" title="Lưu vào thư viện máy này">💾</button>
+        <button class="btn-sec btn-sm" id="dlB" title="Tải code này về máy (để chia sẻ)">⬇️</button>
+        <button class="btn-sec btn-sm" id="upB" title="Nạp file code từ máy">⬆️</button>
+        <input type="file" id="fileB" accept=".txt,.js" hidden></div>
       <textarea id="codeB" spellcheck="false"></textarea>
       <div class="msg" id="msgB"></div>
     </div>
   </div>
 
   <section class="doc">
-    <h2>Cách nạp code của bạn</h2>
-    <p><b>1.</b> Gõ tên vào ô tên · <b>2.</b> Viết/sửa hàm <code>dauSi(s)</code> trong ô code · <b>3.</b> Bấm <b>💾 Lưu</b> → chiến thuật của bạn vào <b>thư viện</b> (nhớ trên máy này) · <b>4.</b> Ai cũng chọn lại từ ô "Đã lưu" để đấu.</p>
+    <h2>Quy trình: tải mẫu → tự code → nạp vào → đấu</h2>
+    <p><b>1.</b> Bấm <b>⬇️ Tải code mẫu</b> → được file khung <code>chienthuat_mau.js</code>. · <b>2.</b> Mở bằng VS Code / Notepad, viết chiến thuật trong <code>dauSi(s)</code>. · <b>3.</b> Quay lại web, bấm <b>⬆️</b> nạp file vào ô (hoặc dán thẳng code). · <b>4.</b> Chọn 2 bên → <b>⚔️ ĐẤU</b>.</p>
+    <p class="muted"><b>Chia sẻ với nhau:</b> bấm <b>⬇️</b> (trên mỗi ô) để tải code của mình thành file rồi gửi cho bạn; người kia bấm <b>⬆️</b> nạp vào để đấu (hoặc copy–paste thẳng). Nút <b>💾</b> lưu vào thư viện trên máy này.</p>
     <p>Hàm <code>dauSi(s)</code> chạy ~30 lần/giây: nhận <code>s</code> (cảm biến), trả <code>[trái, phải]</code> = công suất 2 motor (−1..1). <code>[1,1]</code> tiến · <code>[1,-1]</code> xoay phải · <code>[-1,-1]</code> lùi.</p>
     <div style="overflow-x:auto"><table>
       <thead><tr><th>Biến <code>s</code></th><th>Ý nghĩa</th></tr></thead>
@@ -145,45 +156,29 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
 </div>
 
 <script>
-const PRESETS={
-"Húc Thẳng":
-`function dauSi(s){
-  if(s.mepTruoc) return [-1,-1];
-  if(s.mepSau)   return [1,1];
-  if(s.thayDich){
-    if(s.gocDich >  0.15) return [0.3,1];
-    if(s.gocDich < -0.15) return [1,0.3];
-    return [1,1];
-  }
-  return [0.6,-0.6];
-}`,
-"Trấn Thủ":
-`function dauSi(s){
-  if(s.mepTruoc||s.mepTrai||s.mepPhai) return [-1,-1];
-  if(s.thayDich){
-    if(Math.abs(s.gocDich)<0.2) return [1,1];
-    return s.gocDich>0 ? [0.2,1] : [1,0.2];
-  }
-  if(s.gocVeTam >  0.3) return [0.2,0.6];
-  if(s.gocVeTam < -0.3) return [0.6,0.2];
-  return [0.35,-0.35];
-}`,
-"Né & Vòng Sườn":
-`function dauSi(s){
-  if(s.mepTruoc) return [-1,-1];
-  if(s.thayDich){
-    if(s.khoangCach<0.25 && Math.abs(s.gocDich)<0.5) return [1,-1];
-    return s.gocDich>0 ? [0.5,1] : [1,0.5];
-  }
-  return [0.5,-0.5];
-}`,
-"Rượt Đuổi":
-`function dauSi(s){
-  if(s.mepTruoc||s.mepTrai||s.mepPhai) return [-1,-1];
-  if(s.thayDich) return s.gocDich>0.1?[0.2,1]:(s.gocDich<-0.1?[1,0.2]:[1,1]);
-  return [0.7,-0.7];
-}`
-};
+// KHUNG MẪU (template) — KHÔNG phải chiến thuật, chỉ là bộ khung trống để bạn tự điền.
+const TEMPLATE=
+`// ===== CHIẾN THUẬT CỦA BẠN =====
+// Hàm chạy ~30 lần/giây. Nhận s (cảm biến), trả [trái, phải] mỗi số -1..1.
+//   [1,1]=tiến · [1,-1]=xoay phải · [-1,-1]=lùi · [0.3,1]=rẽ trái tới
+//
+// CẢM BIẾN trong s:
+//   s.thayDich   (bool)  thấy đối thủ chưa
+//   s.khoangCach (m)     khoảng cách tới đối thủ (khi thấy)
+//   s.gocDich    (rad)   +trái / -phải / 0 = trước mặt
+//   s.mepTruoc, s.mepSau, s.mepTrai, s.mepPhai  (bool) cảm biến mép thấy viền TRẮNG
+//   s.gocVeTam   (rad)   hướng về tâm sân (+trái / -phải)
+//   s.t          (giây)
+function dauSi(s){
+  // B1) Luôn tránh mép trước (kẻo tự lao ra ngoài = thua):
+  if (s.mepTruoc) return [-1,-1];
+
+  // B2) >>> VIẾT CHIẾN THUẬT CỦA BẠN Ở ĐÂY <<<
+  //     Gợi ý: nếu s.thayDich thì làm gì? nếu không thấy thì làm gì?
+
+  return [0.5, 0.5]; // tạm: đi tới chậm — hãy thay bằng logic của bạn
+}`;
+const PRESETS={"Khung mẫu (template)": TEMPLATE};
 
 const R=0.65, WHITE=0.60, VMAX=0.20, RR=0.09, WB=0.15, TMAX=60, PUSH=1.6;
 function na(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;}
@@ -198,7 +193,7 @@ let STRATS=loadStrats();
 function refreshDrops(){
   [["presetR","codeR"],["presetB","codeB"]].forEach(([sid])=>{
     const sel=$(sid), cur=sel.value; sel.innerHTML="";
-    const g1=document.createElement("optgroup");g1.label="Chiến thuật mẫu";
+    const g1=document.createElement("optgroup");g1.label="Khung mẫu";
     Object.keys(PRESETS).forEach(k=>{const o=document.createElement("option");o.value="P:"+k;o.textContent=k;g1.appendChild(o)});
     sel.appendChild(g1);
     const ns=Object.keys(STRATS);
@@ -336,8 +331,8 @@ function start(){
 // ---------- UI ----------
 (function restore(){
   try{const cr=localStorage.getItem("sumoCodeR"),cb=localStorage.getItem("sumoCodeB");
-    $("codeR").value=cr||PRESETS["Húc Thẳng"]; $("codeB").value=cb||PRESETS["Trấn Thủ"];
-  }catch(e){$("codeR").value=PRESETS["Húc Thẳng"];$("codeB").value=PRESETS["Trấn Thủ"];}
+    $("codeR").value=cr||TEMPLATE; $("codeB").value=cb||TEMPLATE;
+  }catch(e){$("codeR").value=TEMPLATE;$("codeB").value=TEMPLATE;}
 })();
 refreshDrops();
 $("presetR").onchange=()=>applyPreset($("presetR"),$("codeR"));
@@ -357,6 +352,29 @@ $("nameB").oninput=()=>$("nmB").textContent=nmB();
 $("go").onclick=start;
 $("reset").onclick=()=>{score={r:0,b:0};$("scR").textContent=0;$("scB").textContent=0;resetMatch();};
 $("speed").onclick=e=>{speedMul=speedMul>=5?1:speedMul+1;e.target.textContent="Tốc độ: "+speedMul+"×";};
+// ---- Tải / nạp file code ----
+function download(fname,text){
+  try{const b=new Blob([text],{type:"text/plain;charset=utf-8"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=fname;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},800);
+  }catch(e){alert("Trình duyệt chặn tải file (thử mở trang trên trình duyệt thật).");}
+}
+$("dlTpl").onclick=()=>download("chienthuat_mau.js",TEMPLATE);
+$("dlR").onclick=()=>download(($("nameR").value||"do")+".js",$("codeR").value);
+$("dlB").onclick=()=>download(($("nameB").value||"xanh")+".js",$("codeB").value);
+function wireUpload(btnId,inpId,taId,msgId){
+  $(btnId).onclick=()=>$(inpId).click();
+  $(inpId).onchange=e=>{const f=e.target.files[0];if(!f)return;
+    const rd=new FileReader();
+    rd.onload=()=>{$(taId).value=rd.result;persist();
+      $(msgId).className="msg ok";$(msgId).textContent="✓ Đã nạp "+f.name;
+      setTimeout(()=>{if($(msgId).textContent.startsWith("✓")){$(msgId).textContent="";$(msgId).className="msg";}},2500);};
+    rd.readAsText(f); e.target.value="";};
+}
+wireUpload("upR","fileR","codeR","msgR");
+wireUpload("upB","fileB","codeB","msgB");
+
 window.addEventListener("resize",draw);
 resetMatch();
 </script>
