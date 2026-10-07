@@ -191,29 +191,61 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
 <script>
 // KHUNG MẪU (template) — KHÔNG phải chiến thuật, chỉ là bộ khung trống để bạn tự điền.
 const TEMPLATE=
-`// ===== CHIẾN THUẬT CỦA BẠN =====
-// Hàm chạy ~30 lần/giây. Nhận s (cảm biến), trả [trái, phải] mỗi số -1..1.
-//   [1,1]=tiến · [1,-1]=xoay phải · [-1,-1]=lùi · [0.3,1]=rẽ trái tới
+`// ============================================================
+//  KHUNG + ĐỒ NGHỀ SẴN  — cứ GỌI hàm, khỏi phải tự viết.
+//  Sửa thoải mái. Hàm dauSi(s) chạy ~60 lần/giây, trả [trái, phải]
+//  mỗi bánh từ -1..1.  [1,1]=tiến · [1,-1]=xoay phải · [-1,-1]=lùi
+// ============================================================
 //
-// CẢM BIẾN trong s (GIỐNG HỆT xe thật):
-//   -- Hồng ngoại (3 mắt, tầm gần ~45cm):
-//   s.irTrai, s.irGiua, s.irPhai   (bool) có đối thủ ở mắt đó
-//   -- Siêu âm (chùm phía trước):
-//   s.sieuAm     (cm)    khoảng cách vật trước mặt (999 = không thấy)
-//   -- Dò line / mép (4 góc, true = thấy viền TRẮNG):
-//   s.lineTT, s.lineTP, s.lineST, s.lineSP
-//   -- Tiện lợi (hệ thống suy ra sẵn cho dễ):
-//   s.thayDich (bool) · s.khoangCach (cm) · s.gocDich (rad +trái/-phải)
-//   s.mepTruoc, s.mepSau, s.mepTrai, s.mepPhai  (gộp 4 góc line)
-//   s.gocVeTam (rad về tâm) · s.t (giây)
+//  BẢNG CẢM BIẾN trong s (giống hệt xe thật):
+//   • s.thayDich   (bool)  đang thấy đối thủ (hồng ngoại HOẶC siêu âm)
+//   • s.khoangCach (cm)    khoảng cách tới đối thủ (999 = không rõ)
+//   • s.gocDich    (rad)   lệch của địch: + = bên TRÁI, - = PHẢI, 0 = trước mặt
+//   • s.gocVeTam   (rad)   hướng quay về TÂM sân (+trái / -phải)
+//   • s.mepTruoc / mepSau / mepTrai / mepPhai  (bool)  góc xe chạm viền TRẮNG
+//   • s.t          (giây)  thời gian từ lúc bắt đầu trận
+//   -- cảm biến thô (nếu muốn tự xử lý) --
+//   • s.irTrai, s.irGiua, s.irPhai        (bool)  3 mắt hồng ngoại ~45cm
+//   • s.sieuAm                            (cm)    siêu âm trước mặt (999=xa)
+//   • s.lineTT, s.lineTP, s.lineST, s.lineSP (bool) 4 mắt dò mép
+//
+//  ĐỒ NGHỀ (helper) — gọi thẳng trong dauSi:
+//   tien(t) · lui(t) · dung() · xoayTrai(t) · xoayPhai(t) · reTrai(t) · rePhai(t)
+//   bamDich(s, nhay)  -> tự chĩa mũi vào địch rồi húc  (nhay lớn = bẻ gắt hơn)
+//   veTam(s)          -> chạy về giữa sân (tránh ra mép)
+//   taoPID(Kp,Ki,Kd)  -> tạo bộ PID: pid = taoPID(..); u = pid(saiso, s.t)
+// ------------------------------------------------------------
+
+// ----- ĐỒ NGHỀ (không cần sửa, cứ dùng) -----
+function tien(t){ t=(t==null)?1:t; return [t,t]; }
+function lui(t){ t=(t==null)?1:t; return [-t,-t]; }
+function dung(){ return [0,0]; }
+function xoayPhai(t){ t=(t==null)?1:t; return [t,-t]; }
+function xoayTrai(t){ t=(t==null)?1:t; return [-t,t]; }
+function reTrai(t){ t=(t==null)?1:t; return [t*0.3, t]; }
+function rePhai(t){ t=(t==null)?1:t; return [t, t*0.3]; }
+function gh(x){ return Math.max(-1, Math.min(1, x)); }           // giới hạn -1..1
+function laiTheo(u){ return [gh(1-Math.max(0,u)), gh(1+Math.min(0,u))]; } // u>0 bẻ trái
+function bamDich(s, nhay){ nhay=(nhay==null)?2:nhay; return laiTheo(nhay*s.gocDich); }
+function veTam(s){ return laiTheo(2*s.gocVeTam); }
+function taoPID(Kp,Ki,Kd){ var e0=0,t0=0,I=0;
+  return function(e,t){ var dt=Math.max(t-t0,0.001); I+=e*dt; var D=(e-e0)/dt; e0=e; t0=t;
+    return gh(Kp*e + Ki*I + Kd*D); }; }
+
+// ----- (Tùy chọn) khai báo biến NHỚ qua từng vòng ở đây -----
+// ví dụ: var pidLai = taoPID(1.8, 0, 0.15);
+
+// ===== CHIẾN THUẬT CỦA BẠN — sửa ở đây =====
 function dauSi(s){
-  // B1) Luôn tránh mép trước (kẻo tự lao ra ngoài = thua):
-  if (s.mepTruoc) return [-1,-1];
+  // B1) An toàn: đừng tự lao ra mép (nên giữ)
+  if (s.mepTruoc) return lui(1);
+  if (s.mepSau)   return tien(1);
 
-  // B2) >>> VIẾT CHIẾN THUẬT CỦA BẠN Ở ĐÂY <<<
-  //     Gợi ý: nếu s.thayDich thì làm gì? nếu không thấy thì làm gì?
+  // B2) Thấy đối thủ -> làm gì? (ví dụ: bám rồi húc)
+  if (s.thayDich) return bamDich(s, 2);
 
-  return [0.5, 0.5]; // tạm: đi tới chậm — hãy thay bằng logic của bạn
+  // B3) Chưa thấy -> làm gì? (ví dụ: xoay quét tìm)
+  return xoayPhai(0.9);
 }`;
 const PRESETS={"Khung mẫu (template)": TEMPLATE};
 
