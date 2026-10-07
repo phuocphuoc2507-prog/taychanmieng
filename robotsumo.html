@@ -81,6 +81,7 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
         <button class="btn-go" id="go">⚔️ Đấu</button>
         <button class="btn-sec" id="reset">Đặt lại điểm</button>
         <button class="btn-sec" id="speed">Tốc độ: 3×</button>
+        <button class="btn-sec" id="rays">👁️ Tia: Hiện</button>
       </div>
       <div class="score">
         <span class="sc-r"><b id="scR">0</b> <span id="nmR">Đỏ</span></span>
@@ -219,7 +220,7 @@ const PRESETS={"Khung mẫu (template)": TEMPLATE};
 
 const R=0.65, WHITE=0.60, VMAX=0.20, RR=0.09, WB=0.15, TMAX=60, PUSH=1.6, US_NGUONG=100;
 function na(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;}
-let robots, running=false, tsim=0, speedMul=3, raf=0, score={r:0,b:0};
+let robots, running=false, tsim=0, speedMul=3, raf=0, score={r:0,b:0}, showRays=true;
 const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
 const $=id=>document.getElementById(id);
 
@@ -338,7 +339,29 @@ function draw(){
   ctx.strokeStyle="#f3f3f3";ctx.lineWidth=(R-WHITE)*s;ctx.beginPath();ctx.arc(cx,cy,(R+WHITE)/2*s,0,7);ctx.stroke();
   ctx.strokeStyle="rgba(255,255,255,.15)";ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(cx-9,cy);ctx.lineTo(cx+9,cy);ctx.moveTo(cx,cy-9);ctx.lineTo(cx,cy+9);ctx.stroke();
-  if(robots)for(const r of robots)drawBot(r,s,cx,cy);
+  if(robots){
+    const sen=[sensors(robots[0],robots[1]),sensors(robots[1],robots[0])];
+    if(showRays){drawRays(robots[0],sen[0],s);drawRays(robots[1],sen[1],s);}
+    for(let i=0;i<2;i++)drawBot(robots[i],s,cx,cy);
+  }
+}
+function drawRays(r,sen,s){
+  const cx=cv.width/2,cy=cv.height/2;
+  ctx.save();ctx.translate(cx+r.x*s,cy+r.y*s);ctx.rotate(r.th);
+  function cone(r0,a1,a2,fill){ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r0*s,a1,a2);ctx.closePath();ctx.fillStyle=fill;ctx.fill();}
+  // Siêu âm (xanh dương) — chùm phía trước
+  cone(1.2,-0.35,0.35,"rgba(80,150,255,.07)");
+  if(sen.sieuAm<999) cone(sen.sieuAm/100,-0.35,0.35,"rgba(80,150,255,.24)");
+  // Hồng ngoại (đỏ) — 3 mắt ngắn ~0.45m
+  cone(0.45,-0.35,0.35, sen.irGiua?"rgba(255,70,70,.30)":"rgba(255,70,70,.07)");
+  cone(0.45,0.18,1.0,  sen.irTrai?"rgba(255,70,70,.30)":"rgba(255,70,70,.07)");
+  cone(0.45,-1.0,-0.18,sen.irPhai?"rgba(255,70,70,.30)":"rgba(255,70,70,.07)");
+  // Dò mép (4 góc) — chấm: xanh=đen sàn, trắng sáng=thấy viền
+  const C=[[0.9*RR,0.8*RR,sen.lineTT],[0.9*RR,-0.8*RR,sen.lineTP],[-0.9*RR,0.8*RR,sen.lineST],[-0.9*RR,-0.8*RR,sen.lineSP]];
+  for(const c of C){ctx.beginPath();ctx.arc(c[0]*s,c[1]*s,3.5,0,7);
+    ctx.fillStyle=c[2]?"#ffffff":"#39d98a";ctx.fill();
+    ctx.lineWidth=1;ctx.strokeStyle="rgba(0,0,0,.55)";ctx.stroke();}
+  ctx.restore();
 }
 function drawBot(r,s,cx,cy){
   const px=cx+r.x*s,py=cy+r.y*s,m=s;
@@ -407,6 +430,7 @@ $("nameB").oninput=()=>$("nmB").textContent=nmB();
 $("go").onclick=start;
 $("reset").onclick=()=>{score={r:0,b:0};$("scR").textContent=0;$("scB").textContent=0;resetMatch();};
 $("speed").onclick=e=>{speedMul=speedMul>=5?1:speedMul+1;e.target.textContent="Tốc độ: "+speedMul+"×";};
+$("rays").onclick=e=>{showRays=!showRays;e.target.textContent="👁️ Tia: "+(showRays?"Hiện":"Ẩn");draw();};
 // ---- Tải / nạp file code ----
 function download(fname,text){
   try{const b=new Blob([text],{type:"text/plain;charset=utf-8"});
