@@ -357,12 +357,12 @@ function buocHiep(h,dt){
   // Điều 15.1–15.3: bất kỳ phần nào chạm ngoài viền -> thua; tự chạy ra cũng thua; cùng ra -> hòa
   const o0=raNgoai(robots[0]), o1=raNgoai(robots[1]);
   if(o0&&o1) return {kq:0,lyDo:"cả hai cùng ra"};
-  if(o0) return {kq:-1,lyDo:"bị đẩy / chạy ra ngoài"};
-  if(o1) return {kq:1,lyDo:"đẩy đối thủ ra ngoài"};
+  if(o0) return {kq:-1,lyDo:"đối thủ chạm ngoài viền"};
+  if(o1) return {kq:1,lyDo:"đối thủ chạm ngoài viền"};
   // Điều 14.4: sau thời gian chờ phải chuyển động trong 10 giây
   if(h.t>=PHAI_CHAY){ const a=!h.daChay[0], b=!h.daChay[1];
     if(a&&b) return {kq:0,lyDo:"cả hai không chạy"};
-    if(a) return {kq:-1,lyDo:"không chạy trong 10 giây"};
+    if(a) return {kq:-1,lyDo:"đối thủ không chạy trong 10 giây"};
     if(b) return {kq:1,lyDo:"đối thủ không chạy trong 10 giây"}; }
   // Điều 15.5: móc vào nhau, không bên nào di chuyển quá 10s -> đặt lại vạch xuất phát
   const A=robots[0], B=robots[1];
