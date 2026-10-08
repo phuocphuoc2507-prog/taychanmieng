@@ -304,10 +304,11 @@ let myName="Xe của tôi", oppName="Đối thủ";
 function nmR(){return myName;} function nmB(){return oppName;}
 function resetMatch(){
   cancelAnimationFrame(raf); running=false; tsim=0; Rnow=R; WHITEnow=WHITE;
-  const off=(Math.random()-0.5)*0.12;
+  // lệch xuất phát ĐỘC LẬP cho mỗi xe (thực tế không bao giờ đối xứng hoàn hảo)
+  const offA=(Math.random()-0.5)*0.12, offB=(Math.random()-0.5)*0.12;
   robots=[
-    {x:-0.26,y:off,th:0,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},        // XE CỦA TÔI: bên TRÁI, hướng SANG PHẢI
-    {x:0.26,y:-off,th:Math.PI,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorB||getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: bên PHẢI, hướng SANG TRÁI
+    {x:-0.26,y:offA,th:0,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},        // XE CỦA TÔI: bên TRÁI, hướng SANG PHẢI
+    {x:0.26,y:offB,th:Math.PI,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorB||getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: bên PHẢI, hướng SANG TRÁI
   ];
   draw(); $("status").textContent="Sẵn sàng — bấm ĐẤU"; $("status").style.color="var(--fg)";
 }
