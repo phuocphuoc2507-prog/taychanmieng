@@ -75,7 +75,8 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
   </header>
 
   <div style="background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 18%,var(--panel)),var(--panel));border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin-bottom:14px;font-size:.95rem;line-height:1.7">
-    <b>Làm 3 bước:</b> &nbsp;① <b>Chọn xe của tôi</b> (bên trái) rồi sửa code &nbsp;→&nbsp; ② chọn <b>đối thủ</b> (🎲 random hoặc chọn người) &nbsp;→&nbsp; ③ bấm <b>⚔️ Đấu</b>. &nbsp;<span class="muted">Xe của TÔI luôn ở BÊN TRÁI, đối thủ BÊN PHẢI. Bấm 🚀 để lưu code lên xe của mình.</span>
+    <b>Làm 3 bước:</b> &nbsp;① <b>Chọn xe của tôi</b> (bên trái) rồi sửa code &nbsp;→&nbsp; ② chọn <b>đối thủ</b> (🎲 random hoặc chọn người) &nbsp;→&nbsp; ③ bấm <b>⚔️ Đấu</b>. &nbsp;<span class="muted">Xe của TÔI luôn ở BÊN TRÁI, đối thủ BÊN PHẢI. Bấm 🚀 để lưu code lên xe của mình.</span><br>
+    <b>💡 Mẹo:</b> 1 trận rất <b>hên xui</b> — bấm <b>🏁 Đấu nhanh 20</b> để biết <b>tỉ lệ thắng thật</b> của chiến thuật. &nbsp;·&nbsp; Phím tắt: <b>Ctrl+Enter</b> = Đấu. &nbsp;·&nbsp; Hết 60s thì vào <b>🔥 hiệp phụ</b>, vòng thu nhỏ tới khi có người bị văng.
   </div>
   <div class="arena-row">
     <div class="arena-box">
@@ -83,6 +84,7 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
       <div class="status" id="status">Bấm ĐẤU để bắt đầu</div>
       <div class="ctrls">
         <button class="btn-go" id="go">⚔️ Đấu</button>
+        <button class="btn-sec" id="quick" title="Chạy 20 trận tức thì để biết TỈ LỆ THẮNG thật (1 trận rất hên xui)">🏁 Đấu nhanh 20</button>
         <button class="btn-sec" id="reset">Đặt lại điểm</button>
         <button class="btn-sec" id="speed">Tốc độ: 3×</button>
         <button class="btn-sec" id="rays">👁️ Tia: Hiện</button>
@@ -381,8 +383,9 @@ function checkOut(){
 }
 function finish(w){
   running=false;cancelAnimationFrame(raf);const st=$("status");
+  const kieu = (tsim>TMAX) ? " (hiệp phụ "+(Rnow*200).toFixed(0)+"cm)" : " — húc văng ra!";
   if(!w){st.textContent="🤝 HÒA!";st.style.color="var(--muted)";}
-  else{st.textContent="🏆 "+w.name+" THẮNG!";st.style.color=w.col;
+  else{st.textContent="🏆 "+w.name+" THẮNG"+kieu;st.style.color=w.col;
     if(w===robots[0])score.r++;else score.b++;$("scR").textContent=score.r;$("scB").textContent=score.b;
     const winId=(w===robots[0])?onlineR:onlineB, loseId=(w===robots[0])?onlineB:onlineR;
     capNhatDiem(winId,true); capNhatDiem(loseId,false);}
@@ -475,6 +478,36 @@ function start(){
   running=true;last=0;raf=requestAnimationFrame(loop);
 }
 
+// ---------- ĐẤU NHANH: chạy N trận tức thì (không vẽ) -> biết TỈ LỆ THẮNG thật ----------
+const _dummyMsg={className:"",textContent:""};
+function motTran(fr,fb){   // trả 1 = xe TRÁI (của bạn) thắng, -1 = thua, 0 = hòa
+  const oA=(Math.random()-0.5)*0.12, oB=(Math.random()-0.5)*0.12;
+  robots=[{x:-0.26,y:oA,th:0,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:"#000",name:"A",fn:fr,msg:_dummyMsg},
+          {x:0.26,y:oB,th:Math.PI,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:"#000",name:"B",fn:fb,msg:_dummyMsg}];
+  tsim=0; Rnow=R; WHITEnow=WHITE;
+  while(tsim<TMAX_HP+2){
+    tsim+=0.0083; physics(0.0083); capNhatVong();
+    const d0=Math.hypot(robots[0].x,robots[0].y), d1=Math.hypot(robots[1].x,robots[1].y);
+    const o0=d0>Rnow, o1=d1>Rnow;
+    if(o0&&o1) return Math.abs(d0-d1)<1e-4?0:(d0<d1?1:-1);
+    if(o0) return -1; if(o1) return 1;
+  }
+  return 0;
+}
+async function dauNhanh(N){
+  const fr=compile($("codeR").value,$("msgR")), fb=compile($("codeB").value,$("msgB"));
+  const st=$("status");
+  if(!fr||!fb){ st.style.color="var(--red)"; st.textContent="⚠️ Sửa lỗi code trước"; return; }
+  running=false; cancelAnimationFrame(raf);
+  st.style.color="var(--fg)"; st.textContent="🏁 Đang chạy "+N+" trận…";
+  await new Promise(r=>setTimeout(r,20));
+  let w=0,l=0,d=0;
+  for(let i=0;i<N;i++){ const r=motTran(fr,fb); if(r>0)w++; else if(r<0)l++; else d++; }
+  resetMatch();
+  st.style.color = w>l?"var(--good)" : (l>w?"var(--red)":"var(--muted)");
+  st.textContent="🏁 "+N+" trận — "+nmR()+" thắng "+w+" ("+Math.round(100*w/N)+"%) · thua "+l+" · hòa "+d;
+}
+
 // ---------- UI ----------
 (function restore(){
   try{const cr=localStorage.getItem("sumoCodeR"),cb=localStorage.getItem("sumoCodeB");
@@ -491,6 +524,8 @@ $("saveR").onclick=()=>{ // lưu code hiện tại vào thư viện máy này (d
   setTimeout(()=>{if(msg.textContent.startsWith("✓")){msg.textContent="";msg.className="msg";}},2500);
 };
 $("go").onclick=start;
+$("quick").onclick=()=>dauNhanh(20);
+document.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();start();} });
 $("reset").onclick=()=>{score={r:0,b:0};$("scR").textContent=0;$("scB").textContent=0;resetMatch();};
 $("speed").onclick=e=>{speedMul=speedMul>=5?1:speedMul+1;e.target.textContent="Tốc độ: "+speedMul+"×";};
 $("rays").onclick=e=>{showRays=!showRays;e.target.textContent="👁️ Tia: "+(showRays?"Hiện":"Ẩn");draw();};
