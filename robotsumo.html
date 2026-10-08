@@ -501,8 +501,11 @@ async function dauNhanh(N){
   running=false; cancelAnimationFrame(raf);
   st.style.color="var(--fg)";
   let w=0,l=0,d=0;
+  const srcR=$("codeR").value, srcB=$("codeB").value;
   for(let i=0;i<N;i++){
-    const r=motTran(fr,fb); if(r>0)w++; else if(r<0)l++; else d++;
+    // PHẢI biên dịch lại mỗi trận: nếu dùng lại, biến nhớ của chiến thuật còn sót từ trận trước
+    const r=motTran(compile(srcR,_dummyMsg), compile(srcB,_dummyMsg));
+    if(r>0)w++; else if(r<0)l++; else d++;
     if(i%10===9){ st.textContent="🏁 Đang chạy… "+(i+1)+"/"+N+" (thắng "+w+")";
       await new Promise(r2=>setTimeout(r2,0)); }   // nhả nhịp cho trình duyệt vẽ tiến độ
   }
