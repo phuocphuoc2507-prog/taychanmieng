@@ -106,7 +106,8 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
           <tr><td>Hồng ngoại</td><td>3 mắt, ~45cm</td></tr>
           <tr><td>Siêu âm</td><td>trước mặt ~1,2m</td></tr>
           <tr><td>Dò mép</td><td>4 góc (viền trắng)</td></tr>
-          <tr><td>Hết giờ 60s</td><td>ai gần tâm hơn thắng</td></tr>
+          <tr><td>Hết giờ 60s</td><td>🔥 HIỆP PHỤ: vòng thu nhỏ dần</td></tr>
+          <tr><td>Thắng</td><td>đẩy đối thủ ra khỏi vòng</td></tr>
         </table>
         <p class="muted" style="margin:8px 0 0;font-size:.8rem">Cùng phần cứng — <b>chỉ khác CODE</b>. Ai tối ưu giỏi hơn thì thắng.</p>
       </div>
@@ -255,6 +256,13 @@ const R=0.65, WHITE=0.60, VMAX=0.20, RR=0.09, WB=0.15, TMAX=60, PUSH=8, US_NGUON
 const TAU_V=0.5, TAU_W=0.12;
 function na(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;}
 let robots, running=false, tsim=0, speedMul=3, raf=0, score={r:0,b:0}, showRays=true;
+// HIỆP PHỤ: hết giờ thì vòng đấu THU NHỎ dần cho tới khi có người bị văng ra (hết cảnh xử điểm)
+const R_MIN=0.22, TOC_THU=0.03, TMAX_HP=TMAX+28;   // bán kính nhỏ nhất, tốc độ thu (m/s), hạn chót
+let Rnow=R, WHITEnow=WHITE;
+function capNhatVong(){
+  Rnow = (tsim<=TMAX) ? R : Math.max(R_MIN, R-(tsim-TMAX)*TOC_THU);
+  WHITEnow = Math.max(0.10, Rnow-(R-WHITE));       // giữ nguyên bề rộng viền trắng
+}
 const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
 const $=id=>document.getElementById(id);
 
@@ -295,7 +303,7 @@ function getCSS(v){return getComputedStyle(document.documentElement).getProperty
 let myName="Xe của tôi", oppName="Đối thủ";
 function nmR(){return myName;} function nmB(){return oppName;}
 function resetMatch(){
-  cancelAnimationFrame(raf); running=false; tsim=0;
+  cancelAnimationFrame(raf); running=false; tsim=0; Rnow=R; WHITEnow=WHITE;
   const off=(Math.random()-0.5)*0.12;
   robots=[
     {x:-0.26,y:off,th:0,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},        // XE CỦA TÔI: bên TRÁI, hướng SANG PHẢI
@@ -308,7 +316,7 @@ function sensors(me,foe){
   // --- DÒ LINE / MÉP: 4 góc (true = thấy viền TRẮNG) ---
   const cs=[[RR*0.9,RR*0.8],[RR*0.9,-RR*0.8],[-RR*0.9,RR*0.8],[-RR*0.9,-RR*0.8]];
   const w=cs.map(c=>{const wx=me.x+c[0]*Math.cos(me.th)-c[1]*Math.sin(me.th),
-    wy=me.y+c[0]*Math.sin(me.th)+c[1]*Math.cos(me.th);return Math.hypot(wx,wy)>WHITE;});
+    wy=me.y+c[0]*Math.sin(me.th)+c[1]*Math.cos(me.th);return Math.hypot(wx,wy)>WHITEnow;});
   // --- HỒNG NGOẠI: 3 mắt tầm gần (~45cm) ---
   const inIR=dist<=0.45;
   const irGiua=inIR&&Math.abs(ang)<=0.35;
@@ -361,10 +369,12 @@ function physics(dt){
     a.vx*=0.9;a.vy*=0.9;b.vx*=0.9;b.vy*=0.9;}
 }
 function checkOut(){
-  const o=robots.map(r=>Math.hypot(r.x,r.y)>R);
+  capNhatVong();
+  const o=robots.map(r=>Math.hypot(r.x,r.y)>Rnow);
   if(o[0]&&o[1])return finish(null);
   if(o[0])return finish(robots[1]); if(o[1])return finish(robots[0]);
-  if(tsim>=TMAX){const d0=Math.hypot(robots[0].x,robots[0].y),d1=Math.hypot(robots[1].x,robots[1].y);
+  // hết cả hiệp phụ mà vẫn chưa ai ra (hiếm) -> xử ai gần tâm hơn
+  if(tsim>=TMAX_HP){const d0=Math.hypot(robots[0].x,robots[0].y),d1=Math.hypot(robots[1].x,robots[1].y);
     return finish(Math.abs(d0-d1)<0.02?null:(d0<d1?robots[0]:robots[1]));}
 }
 function finish(w){
@@ -383,8 +393,12 @@ function rrect(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h
 function draw(){
   const s=W2S(),cx=cv.width/2,cy=cv.height/2;
   ctx.clearRect(0,0,cv.width,cv.height);
-  ctx.fillStyle="#0a0a0a";ctx.beginPath();ctx.arc(cx,cy,R*s,0,7);ctx.fill();
-  ctx.strokeStyle="#f3f3f3";ctx.lineWidth=(R-WHITE)*s;ctx.beginPath();ctx.arc(cx,cy,(R+WHITE)/2*s,0,7);ctx.stroke();
+  if(Rnow<R-1e-6){ // hiệp phụ: vẽ mờ vòng gốc để thấy vòng đang co lại
+    ctx.strokeStyle="rgba(255,255,255,.10)";ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(cx,cy,R*s,0,7);ctx.stroke(); }
+  ctx.fillStyle="#0a0a0a";ctx.beginPath();ctx.arc(cx,cy,Rnow*s,0,7);ctx.fill();
+  ctx.strokeStyle=(Rnow<R-1e-6)?"#ffd36b":"#f3f3f3";                    // hiệp phụ: viền vàng
+  ctx.lineWidth=(Rnow-WHITEnow)*s;ctx.beginPath();ctx.arc(cx,cy,(Rnow+WHITEnow)/2*s,0,7);ctx.stroke();
   ctx.strokeStyle="rgba(255,255,255,.15)";ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(cx-9,cy);ctx.lineTo(cx+9,cy);ctx.moveTo(cx,cy-9);ctx.lineTo(cx,cy+9);ctx.stroke();
   if(robots){
@@ -445,7 +459,12 @@ function loop(ts){
   const step=dt*speedMul,sub=6,h=step/sub;
   for(let i=0;i<sub;i++){tsim+=h;physics(h);checkOut();if(!running)break;}
   draw();
-  if(running){$("status").style.color="var(--fg)";$("status").textContent="⏱️ "+tsim.toFixed(1)+"s";raf=requestAnimationFrame(loop);}
+  if(running){
+    const st=$("status");
+    if(tsim>TMAX){ st.style.color="var(--gold)";
+      st.textContent="🔥 HIỆP PHỤ — vòng đang thu nhỏ! ("+(Rnow*200).toFixed(0)+"cm) "+tsim.toFixed(1)+"s"; }
+    else { st.style.color="var(--fg)"; st.textContent="⏱️ "+tsim.toFixed(1)+"s"; }
+    raf=requestAnimationFrame(loop);}
 }
 function start(){
   const fr=compile($("codeR").value,$("msgR")),fb=compile($("codeB").value,$("msgB"));
