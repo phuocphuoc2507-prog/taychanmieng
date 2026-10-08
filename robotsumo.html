@@ -76,7 +76,8 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
 
   <div style="background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 18%,var(--panel)),var(--panel));border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin-bottom:14px;font-size:.95rem;line-height:1.7">
     <b>Làm 3 bước:</b> &nbsp;① <b>Chọn xe của tôi</b> (bên trái) rồi sửa code &nbsp;→&nbsp; ② chọn <b>đối thủ</b> (🎲 random hoặc chọn người) &nbsp;→&nbsp; ③ bấm <b>⚔️ Đấu</b>. &nbsp;<span class="muted">Xe của TÔI luôn ở BÊN TRÁI, đối thủ BÊN PHẢI. Bấm 🚀 để lưu code lên xe của mình.</span><br>
-    <b>💡 Mẹo:</b> 1 trận rất <b>hên xui</b> — bấm <b>🏁 Đấu nhanh 50</b> để biết <b>tỉ lệ thắng thật</b> của chiến thuật. &nbsp;·&nbsp; Phím tắt: <b>Ctrl+Enter</b> = Đấu. &nbsp;·&nbsp; Hết 60s thì vào <b>🔥 hiệp phụ</b>, vòng thu nhỏ tới khi có người bị văng.
+    <b>💡 Mẹo:</b> 1 trận rất <b>hên xui</b> — bấm <b>🏁 Đấu nhanh 20 trận</b> để biết <b>tỉ lệ thắng thật</b> của chiến thuật. &nbsp;·&nbsp; Phím tắt: <b>Ctrl+Enter</b> = Đấu.<br>
+    <b>📜 Luật (theo Thể lệ K26):</b> trận <b>BO3</b>, mỗi hiệp <b>2 phút</b>, đứng yên <b>5s</b> rồi mới chạy (10s sau không chạy = thua hiệp), xe có <b>bất kỳ phần nào</b> chạm ngoài viền là thua, <b>hòa</b> thì đấu lại 1 lần rồi trọng tài chọn bên chủ động hơn, 2 xe <b>kẹt >10s</b> thì đặt lại vạch xuất phát.
   </div>
   <div class="arena-row">
     <div class="arena-box">
@@ -84,7 +85,8 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
       <div class="status" id="status">Bấm ĐẤU để bắt đầu</div>
       <div class="ctrls">
         <button class="btn-go" id="go">⚔️ Đấu</button>
-        <button class="btn-sec" id="quick" title="Chạy 50 trận tức thì để biết TỈ LỆ THẮNG thật (1 trận rất hên xui)">🏁 Đấu nhanh 50</button>
+        <button class="btn-sec" id="quick" title="Chạy 20 trận BO3 đủ luật để biết TỈ LỆ THẮNG thật (1 trận rất hên xui)">🏁 Đấu nhanh 20 trận</button>
+        <select id="san" title="Đường kính sân (Thể lệ: 120–150cm)"><option value="120">Sân Ø120</option><option value="130" selected>Sân Ø130</option><option value="150">Sân Ø150</option></select>
         <button class="btn-sec" id="reset">Đặt lại điểm</button>
         <button class="btn-sec" id="speed">Tốc độ: 3×</button>
         <button class="btn-sec" id="rays">👁️ Tia: Hiện</button>
@@ -104,12 +106,16 @@ footer{margin-top:22px;color:var(--muted);font-size:.78rem;border-top:1px solid 
           <tr><td>Xoay tại chỗ</td><td>~150°/s</td></tr>
           <tr><td>Thân (dài×rộng)</td><td>175×160 mm</td></tr>
           <tr><td>Khối lượng</td><td>1,9 kg</td></tr>
-          <tr><td>Sân (đường kính)</td><td>1,30 m</td></tr>
+          <tr><td>Sân</td><td>Ø120–150cm, viền trắng 5cm</td></tr>
           <tr><td>Hồng ngoại</td><td>3 mắt, ~45cm</td></tr>
           <tr><td>Siêu âm</td><td>trước mặt ~1,2m</td></tr>
           <tr><td>Dò mép</td><td>4 góc (viền trắng)</td></tr>
-          <tr><td>Hết giờ 60s</td><td>🔥 HIỆP PHỤ: vòng thu nhỏ dần</td></tr>
-          <tr><td>Thắng</td><td>đẩy đối thủ ra khỏi vòng</td></tr>
+          <tr><td>Trận</td><td>BO3 — thắng 2 hiệp</td></tr>
+          <tr><td>Mỗi hiệp</td><td>tối đa 2 phút</td></tr>
+          <tr><td>Xuất phát</td><td>đứng yên 5s, hướng tùy ý</td></tr>
+          <tr><td>Thắng hiệp</td><td>đối thủ có phần nào chạm ngoài viền</td></tr>
+          <tr><td>Hòa</td><td>đấu lại 1 lần → trọng tài chọn bên chủ động</td></tr>
+          <tr><td>Kẹt >10s</td><td>đặt lại vạch xuất phát</td></tr>
         </table>
         <p class="muted" style="margin:8px 0 0;font-size:.8rem">Cùng phần cứng — <b>chỉ khác CODE</b>. Ai tối ưu giỏi hơn thì thắng.</p>
       </div>
@@ -235,6 +241,9 @@ function taoPID(Kp,Ki,Kd){ var e0=0,t0=0,I=0;
   return function(e,t){ var dt=Math.max(t-t0,0.001); I+=e*dt; var D=(e-e0)/dt; e0=e; t0=t;
     return gh(Kp*e + Ki*I + Kd*D); }; }
 
+// ----- (Tùy chọn) HƯỚNG ĐẶT XE lúc xuất phát (luật cho phép hướng tùy ý) -----
+// dauSi.huongXuatPhat = 0;   // độ: 0 = nhìn thẳng đối thủ, 90 = quay sang trái, -90 = sang phải
+
 // ----- (Tùy chọn) khai báo biến NHỚ qua từng vòng ở đây -----
 // ví dụ: var pidLai = taoPID(1.8, 0, 0.15);
 
@@ -252,18 +261,23 @@ function dauSi(s){
 }`;
 const PRESETS={"Khung mẫu (template)": TEMPLATE};
 
-const R=0.65, WHITE=0.60, VMAX=0.20, RR=0.09, WB=0.15, TMAX=60, PUSH=8, US_NGUONG=100;
+// SÂN (Thể lệ Điều 10): tròn Ø120–150cm, mặt đen, viền TRẮNG 5cm nằm trong sân.
+let R=0.65, WHITE=0.60;                 // mặc định Ø130cm (đổi được ở ô chọn sân)
+const VMAX=0.20, RR=0.09, WB=0.15, PUSH=8, US_NGUONG=100;
+// LUẬT (Thể lệ Điều 13–15)
+const TMAX=120;        // mỗi hiệp tối đa 2 phút
+const CHO=5;           // đứng yên 5 giây sau khi bật rồi mới được chạy
+const PHAI_CHAY=10;    // sau thời gian chờ, 10 giây không chuyển động -> thua hiệp
+const KET=10;          // 2 xe móc nhau, không bên nào di chuyển >10s -> đặt lại vạch xuất phát
 // QUÁN TÍNH (độ "ì"): xe có đà, không dừng/bẻ tức thì + trượt ngang theo đà cũ.
-// TAU_V = ì tốc độ (càng lớn càng trượt xa); TAU_W = ì xoay.
 const TAU_V=0.5, TAU_W=0.12;
 function na(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;}
-let robots, running=false, tsim=0, speedMul=3, raf=0, score={r:0,b:0}, showRays=true;
-// HIỆP PHỤ: hết giờ thì vòng đấu THU NHỎ dần cho tới khi có người bị văng ra (hết cảnh xử điểm)
-const R_MIN=0.05, TOC_THU=0.03, TMAX_HP=TMAX+30;   // bán kính nhỏ nhất, tốc độ thu (m/s), hạn chót
-let Rnow=R, WHITEnow=WHITE;
-function capNhatVong(){
-  Rnow = (tsim<=TMAX) ? R : Math.max(R_MIN, R-(tsim-TMAX)*TOC_THU);
-  WHITEnow = Math.max(0.02, Rnow-(R-WHITE));       // giữ bề rộng viền trắng (không vượt quá Rnow)
+let robots, running=false, tsim=0, tGoc=0, speedMul=3, raf=0, score={r:0,b:0}, showRays=true;
+// Khung xe (mét, hệ toạ độ xe): dùng xét "BẤT KỲ PHẦN NÀO chạm ngoài viền" (Điều 15.1)
+const KHUNG=[[0.105,0.05],[0.105,-0.05],[0.07,0.08],[0.07,-0.08],[-0.07,0.08],[-0.07,-0.08]];
+function raNgoai(r){
+  const c=Math.cos(r.th), s=Math.sin(r.th);
+  return KHUNG.some(([px,py])=>Math.hypot(r.x+px*c-py*s, r.y+px*s+py*c)>R);
 }
 const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
 const $=id=>document.getElementById(id);
@@ -304,22 +318,73 @@ function compile(code, msgEl){
 function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||"#888";}
 let myName="Xe của tôi", oppName="Đối thủ";
 function nmR(){return myName;} function nmB(){return oppName;}
+// ---------- ĐẶT XE VÀO VẠCH XUẤT PHÁT (Điều 14) ----------
+// Hai bên tâm sân, lệch ngẫu nhiên riêng từng xe. HƯỚNG ĐẶT TÙY Ý: code có thể khai báo
+//   dauSi.huongXuatPhat = 30;   // độ, 0 = nhìn thẳng đối thủ, dương = quay sang TRÁI
+function mkRobot(x,y,th,fn,col,name,msg){return {x,y,th,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col,name,fn,msg};}
+function huong(fn){const h=fn&&+fn.huongXuatPhat; return isFinite(h)?h*Math.PI/180:0;}
+function datXe(fr,fb,colR,colB){
+  const oA=(Math.random()-0.5)*0.12, oB=(Math.random()-0.5)*0.12;
+  robots=[mkRobot(-0.26,oA,0+huong(fr),fr,colR,nmR(),$("msgR")),          // XE CỦA TÔI: bên TRÁI
+          mkRobot( 0.26,oB,Math.PI+huong(fb),fb,colB,nmB(),$("msgB"))];   // ĐỐI THỦ: bên PHẢI
+}
 function resetMatch(){
-  cancelAnimationFrame(raf); running=false; tsim=0; Rnow=R; WHITEnow=WHITE;
-  // lệch xuất phát ĐỘC LẬP cho mỗi xe (thực tế không bao giờ đối xứng hoàn hảo)
-  const offA=(Math.random()-0.5)*0.12, offB=(Math.random()-0.5)*0.12;
-  robots=[
-    {x:-0.26,y:offA,th:0,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorR||getCSS('--red'),name:nmR(),fn:null,msg:$("msgR")},        // XE CỦA TÔI: bên TRÁI, hướng SANG PHẢI
-    {x:0.26,y:offB,th:Math.PI,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:pickedColorB||getCSS('--blue'),name:nmB(),fn:null,msg:$("msgB")}  // ĐỐI THỦ: bên PHẢI, hướng SANG TRÁI
-  ];
+  cancelAnimationFrame(raf); running=false; tsim=0; tGoc=0;
+  datXe(null,null,pickedColorR||getCSS('--red'),pickedColorB||getCSS('--blue'));
   draw(); $("status").textContent="Sẵn sàng — bấm ĐẤU"; $("status").style.color="var(--fg)";
+}
+
+// ---------- MỘT HIỆP ĐẤU theo Thể lệ (dùng chung cho trận xem được & đấu nhanh) ----------
+// h.cho: còn bao nhiêu giây đứng yên · h.t: đồng hồ hiệp · h.atk: điểm "chủ động tấn công"
+function taoHiep(srcR,srcB,mR,mB,boQuaCho){
+  const h={srcR,srcB,mR,mB,boQuaCho,t:0,cho:boQuaCho?0:CHO,datLai:0,atk:[0,0],daChay:[false,false],neo:null,tNeo:0};
+  datViTri(h); return h;
+}
+function datViTri(h){            // đặt (lại) 2 xe về vạch xuất phát + khởi động lại chương trình
+  const fr=compile(h.srcR,h.mR), fb=compile(h.srcB,h.mB);
+  h.loi=!fr||!fb;
+  datXe(fr,fb,pickedColorR||getCSS('--red'),pickedColorB||getCSS('--blue'));
+  h.start=robots.map(r=>({x:r.x,y:r.y})); tGoc=h.t; h.cho=h.boQuaCho?0:CHO;
+}
+// trả null khi hiệp chưa xong; {kq, lyDo} khi xong. kq: 1 = xe TRÁI (của tôi) thắng, -1 = thua, 0 = hòa
+function buocHiep(h,dt){
+  if(h.cho>0){ h.cho-=dt; return null; }          // đứng yên 5 giây: không chạy, đồng hồ dừng
+  physics(dt); h.t+=dt; tsim=h.t;
+  for(let i=0;i<2;i++){ const a=robots[i], b=robots[1-i];
+    const dx=b.x-a.x, dy=b.y-a.y, d=Math.hypot(dx,dy)||1;
+    h.atk[i]+=Math.max(0,(a.vx*dx+a.vy*dy)/d)*dt;                // tiến VỀ PHÍA đối thủ = chủ động
+    if(!h.daChay[i] && Math.hypot(a.x-h.start[i].x,a.y-h.start[i].y)>0.02) h.daChay[i]=true; }
+  // Điều 15.1–15.3: bất kỳ phần nào chạm ngoài viền -> thua; tự chạy ra cũng thua; cùng ra -> hòa
+  const o0=raNgoai(robots[0]), o1=raNgoai(robots[1]);
+  if(o0&&o1) return {kq:0,lyDo:"cả hai cùng ra"};
+  if(o0) return {kq:-1,lyDo:"bị đẩy / chạy ra ngoài"};
+  if(o1) return {kq:1,lyDo:"đẩy đối thủ ra ngoài"};
+  // Điều 14.4: sau thời gian chờ phải chuyển động trong 10 giây
+  if(h.t>=PHAI_CHAY){ const a=!h.daChay[0], b=!h.daChay[1];
+    if(a&&b) return {kq:0,lyDo:"cả hai không chạy"};
+    if(a) return {kq:-1,lyDo:"không chạy trong 10 giây"};
+    if(b) return {kq:1,lyDo:"đối thủ không chạy trong 10 giây"}; }
+  // Điều 15.5: móc vào nhau, không bên nào di chuyển quá 10s -> đặt lại vạch xuất phát
+  const A=robots[0], B=robots[1];
+  if(Math.hypot(B.x-A.x,B.y-A.y)<2*RR+0.015){
+    const lech=h.neo?Math.max(Math.hypot(A.x-h.neo[0].x,A.y-h.neo[0].y),Math.hypot(B.x-h.neo[1].x,B.y-h.neo[1].y)):1;
+    if(lech>0.03){ h.neo=[{x:A.x,y:A.y},{x:B.x,y:B.y}]; h.tNeo=h.t; }
+    else if(h.t-h.tNeo>=KET){ h.datLai++; datViTri(h); h.neo=null; h.daChay=[true,true]; }
+  } else h.neo=null;
+  if(h.t>=TMAX) return {kq:0,lyDo:"hết 2 phút"};   // Điều 15.3
+  return null;
+}
+// Điều 15.3–15.4: hiệp hòa đấu lại 1 lần; vẫn hòa -> trọng tài chọn bên CHỦ ĐỘNG TẤN CÔNG hơn
+function phanXuHoa(h){
+  const a=h.atk[0], b=h.atk[1];
+  return {kq: a>b?1:(b>a?-1:(Math.random()<0.5?1:-1)), lyDo:"đấu lại vẫn hòa → trọng tài chọn bên chủ động hơn"};
 }
 function sensors(me,foe){
   const dx=foe.x-me.x,dy=foe.y-me.y,dist=Math.hypot(dx,dy),ang=na(Math.atan2(dy,dx)-me.th);
   // --- DÒ LINE / MÉP: 4 góc (true = thấy viền TRẮNG) ---
   const cs=[[RR*0.9,RR*0.8],[RR*0.9,-RR*0.8],[-RR*0.9,RR*0.8],[-RR*0.9,-RR*0.8]];
   const w=cs.map(c=>{const wx=me.x+c[0]*Math.cos(me.th)-c[1]*Math.sin(me.th),
-    wy=me.y+c[0]*Math.sin(me.th)+c[1]*Math.cos(me.th);return Math.hypot(wx,wy)>WHITEnow;});
+    wy=me.y+c[0]*Math.sin(me.th)+c[1]*Math.cos(me.th);return Math.hypot(wx,wy)>WHITE;});
   // --- HỒNG NGOẠI: 3 mắt tầm gần (~45cm) ---
   const inIR=dist<=0.45;
   const irGiua=inIR&&Math.abs(ang)<=0.35;
@@ -337,7 +402,7 @@ function sensors(me,foe){
     lineTT:w[0],lineTP:w[1],lineST:w[2],lineSP:w[3],
     thayDich:thay, khoangCach:thay?(thayUS?sieuAm:dist*100):999, gocDich:thay?g:0,
     mepTruoc:w[0]||w[1],mepSau:w[2]||w[3],mepTrai:w[0]||w[2],mepPhai:w[1]||w[3],
-    gocVeTam:na(Math.atan2(-me.y,-me.x)-me.th),t:tsim
+    gocVeTam:na(Math.atan2(-me.y,-me.x)-me.th),t:tsim-tGoc
   };
 }
 function callFn(me,foe){
@@ -371,25 +436,31 @@ function physics(dt){
     // chạm thì hãm bớt đà (đỡ dính, vẫn còn trượt nhẹ)
     a.vx*=0.9;a.vy*=0.9;b.vx*=0.9;b.vy*=0.9;}
 }
-function checkOut(){
-  capNhatVong();
-  const d0=Math.hypot(robots[0].x,robots[0].y), d1=Math.hypot(robots[1].x,robots[1].y);
-  const o=[d0>Rnow, d1>Rnow];
-  // cả hai cùng vượt vạch (bị vòng ép) -> ai BỊ ÉP RA XA HƠN là vượt vạch trước => thua
-  if(o[0]&&o[1]) return finish(Math.abs(d0-d1)<1e-4?null:(d0<d1?robots[0]:robots[1]));
-  if(o[0])return finish(robots[1]); if(o[1])return finish(robots[0]);
-  // hết cả hiệp phụ mà vẫn chưa ai ra (rất hiếm) -> xử ai gần tâm hơn
-  if(tsim>=TMAX_HP) return finish(Math.abs(d0-d1)<0.02?null:(d0<d1?robots[0]:robots[1]));
+// ---------- TRẬN ĐẤU = tối đa 3 hiệp, thắng 2 hiệp là thắng trận (Điều 13) ----------
+let H=null, tran=null, hen=0;
+function xuLyKetQua(res){                       // gọi khi 1 hiệp (xem được) kết thúc
+  running=false; cancelAnimationFrame(raf); draw();
+  const st=$("status");
+  if(res.kq===0 && !tran.dauLai){                // hòa lần đầu -> đấu lại hiệp đó 1 lần
+    st.style.color="var(--muted)"; st.textContent="🤝 Hiệp "+tran.so+" HÒA ("+res.lyDo+") — đấu lại hiệp này";
+    tran.dauLai=true; hen=setTimeout(batDauHiep,1800); return; }
+  if(res.kq===0) res=phanXuHoa(H);               // đấu lại vẫn hòa -> trọng tài chọn bên chủ động
+  tran.dauLai=false;
+  if(res.kq>0) tran.wR++; else tran.wB++;
+  $("scR").textContent=tran.wR; $("scB").textContent=tran.wB;
+  const ai=res.kq>0?nmR():nmB(), mau=res.kq>0?(pickedColorR||getCSS('--red')):(pickedColorB||getCSS('--blue'));
+  if(tran.wR===2||tran.wB===2){                  // xong trận
+    st.style.color=mau; st.textContent="🏆 "+ai+" THẮNG TRẬN "+Math.max(tran.wR,tran.wB)+"–"+Math.min(tran.wR,tran.wB)+" (hiệp cuối: "+res.lyDo+")";
+    const thangTrai=tran.wR===2;
+    capNhatDiem(thangTrai?onlineR:onlineB,true); capNhatDiem(thangTrai?onlineB:onlineR,false);
+    return; }
+  st.style.color=mau; st.textContent="✅ Hiệp "+tran.so+": "+ai+" thắng ("+res.lyDo+") · tỉ số "+tran.wR+"–"+tran.wB;
+  tran.so++; hen=setTimeout(batDauHiep,1800);
 }
-function finish(w){
-  running=false;cancelAnimationFrame(raf);const st=$("status");
-  const kieu = (tsim>TMAX) ? " (hiệp phụ "+(Rnow*200).toFixed(0)+"cm)" : " — húc văng ra!";
-  if(!w){st.textContent="🤝 HÒA!";st.style.color="var(--muted)";}
-  else{st.textContent="🏆 "+w.name+" THẮNG"+kieu;st.style.color=w.col;
-    if(w===robots[0])score.r++;else score.b++;$("scR").textContent=score.r;$("scB").textContent=score.b;
-    const winId=(w===robots[0])?onlineR:onlineB, loseId=(w===robots[0])?onlineB:onlineR;
-    capNhatDiem(winId,true); capNhatDiem(loseId,false);}
-  draw();return true;
+function batDauHiep(){
+  H=taoHiep($("codeR").value,$("codeB").value,$("msgR"),$("msgB"),false);
+  if(H.loi){ $("status").style.color="var(--red)"; $("status").textContent="⚠️ Sửa lỗi code trước"; return; }
+  running=true; last=0; raf=requestAnimationFrame(loop);
 }
 
 // ---------- Vẽ xe theo CAD ----------
@@ -398,12 +469,11 @@ function rrect(x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h
 function draw(){
   const s=W2S(),cx=cv.width/2,cy=cv.height/2;
   ctx.clearRect(0,0,cv.width,cv.height);
-  if(Rnow<R-1e-6){ // hiệp phụ: vẽ mờ vòng gốc để thấy vòng đang co lại
-    ctx.strokeStyle="rgba(255,255,255,.10)";ctx.lineWidth=1;
-    ctx.beginPath();ctx.arc(cx,cy,R*s,0,7);ctx.stroke(); }
-  ctx.fillStyle="#0a0a0a";ctx.beginPath();ctx.arc(cx,cy,Rnow*s,0,7);ctx.fill();
-  ctx.strokeStyle=(Rnow<R-1e-6)?"#ffd36b":"#f3f3f3";                    // hiệp phụ: viền vàng
-  ctx.lineWidth=(Rnow-WHITEnow)*s;ctx.beginPath();ctx.arc(cx,cy,(Rnow+WHITEnow)/2*s,0,7);ctx.stroke();
+  ctx.fillStyle="#0a0a0a";ctx.beginPath();ctx.arc(cx,cy,R*s,0,7);ctx.fill();
+  ctx.strokeStyle="#f3f3f3";ctx.lineWidth=(R-WHITE)*s;ctx.beginPath();ctx.arc(cx,cy,(R+WHITE)/2*s,0,7);ctx.stroke();
+  // 2 vạch xuất phát hai bên tâm sân (Điều 14)
+  ctx.strokeStyle="rgba(255,255,255,.28)";ctx.lineWidth=2;
+  for(const sx of [-0.15,0.15]){ctx.beginPath();ctx.moveTo(cx+sx*s,cy-0.10*s);ctx.lineTo(cx+sx*s,cy+0.10*s);ctx.stroke();}
   ctx.strokeStyle="rgba(255,255,255,.15)";ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(cx-9,cy);ctx.lineTo(cx+9,cy);ctx.moveTo(cx,cy-9);ctx.lineTo(cx,cy+9);ctx.stroke();
   if(robots){
@@ -461,57 +531,58 @@ let last=0;
 function loop(ts){
   if(!running)return; if(!last)last=ts;
   let dt=(ts-last)/1000;last=ts;if(dt>0.05)dt=0.05;
-  const step=dt*speedMul,sub=6,h=step/sub;
-  for(let i=0;i<sub;i++){tsim+=h;physics(h);checkOut();if(!running)break;}
+  const step=dt*speedMul,sub=6,hh=step/sub;
+  let res=null;
+  for(let i=0;i<sub;i++){ res=buocHiep(H,hh); if(res)break; }
   draw();
-  if(running){
-    const st=$("status");
-    if(tsim>TMAX){ st.style.color="var(--gold)";
-      st.textContent="🔥 HIỆP PHỤ — vòng đang thu nhỏ! ("+(Rnow*200).toFixed(0)+"cm) "+tsim.toFixed(1)+"s"; }
-    else { st.style.color="var(--fg)"; st.textContent="⏱️ "+tsim.toFixed(1)+"s"; }
-    raf=requestAnimationFrame(loop);}
+  if(res){ xuLyKetQua(res); return; }
+  const st=$("status"), ten="Hiệp "+tran.so+(tran.dauLai?" (đấu lại)":"");
+  if(H.cho>0){ st.style.color="var(--gold)";
+    st.textContent="⏳ "+ten+" — đứng yên "+Math.ceil(H.cho)+"s"+(H.datLai?" (trọng tài đặt lại lần "+H.datLai+")":""); }
+  else { st.style.color="var(--fg)";
+    st.textContent="⚔️ "+ten+" · "+H.t.toFixed(1)+"s / 120s · tỉ số "+tran.wR+"–"+tran.wB+(H.datLai?" · đặt lại "+H.datLai+" lần":""); }
+  raf=requestAnimationFrame(loop);
 }
-function start(){
-  const fr=compile($("codeR").value,$("msgR")),fb=compile($("codeB").value,$("msgB"));
-  resetMatch();robots[0].fn=fr;robots[1].fn=fb;robots[0].name=nmR();robots[1].name=nmB();
-  if(!fr||!fb){$("status").textContent="⚠️ Sửa lỗi code trước";return;}
-  running=true;last=0;raf=requestAnimationFrame(loop);
+function start(){                                 // ⚔️ Đấu = cả 1 TRẬN (tối đa 3 hiệp)
+  clearTimeout(hen); cancelAnimationFrame(raf); running=false;
+  tran={so:1,wR:0,wB:0,dauLai:false};
+  $("scR").textContent=0; $("scB").textContent=0;
+  batDauHiep();
 }
 
-// ---------- ĐẤU NHANH: chạy N trận tức thì (không vẽ) -> biết TỈ LỆ THẮNG thật ----------
+// ---------- ĐẤU NHANH: chạy N TRẬN đủ luật (không vẽ) -> biết TỈ LỆ THẮNG thật ----------
 const _dummyMsg={className:"",textContent:""};
-function motTran(fr,fb){   // trả 1 = xe TRÁI (của bạn) thắng, -1 = thua, 0 = hòa
-  const oA=(Math.random()-0.5)*0.12, oB=(Math.random()-0.5)*0.12;
-  robots=[{x:-0.26,y:oA,th:0,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:"#000",name:"A",fn:fr,msg:_dummyMsg},
-          {x:0.26,y:oB,th:Math.PI,v:0,vx:0,vy:0,w:0,tvx:0,tvy:0,col:"#000",name:"B",fn:fb,msg:_dummyMsg}];
-  tsim=0; Rnow=R; WHITEnow=WHITE;
-  while(tsim<TMAX_HP+2){
-    tsim+=0.0083; physics(0.0083); capNhatVong();
-    const d0=Math.hypot(robots[0].x,robots[0].y), d1=Math.hypot(robots[1].x,robots[1].y);
-    const o0=d0>Rnow, o1=d1>Rnow;
-    if(o0&&o1) return Math.abs(d0-d1)<1e-4?0:(d0<d1?1:-1);
-    if(o0) return -1; if(o1) return 1;
+function motHiep(srcR,srcB){                      // 1 hiệp, bỏ qua 5s chờ (không ảnh hưởng kết quả)
+  const h=taoHiep(srcR,srcB,_dummyMsg,_dummyMsg,true);
+  let r=null; while(!r) r=buocHiep(h,0.0083);
+  r.h=h; return r;
+}
+function motTranBO3(srcR,srcB){                   // trả {kq, wR, wB, hiep}
+  let wR=0,wB=0,hiep=0;
+  while(wR<2&&wB<2){
+    let r=motHiep(srcR,srcB); hiep++;
+    if(r.kq===0){ const r2=motHiep(srcR,srcB); hiep++; r = r2.kq!==0 ? r2 : phanXuHoa(r2.h); }
+    if(r.kq>0) wR++; else wB++;
   }
-  return 0;
+  return {kq: wR>wB?1:-1, wR, wB, hiep};
 }
 async function dauNhanh(N){
-  const fr=compile($("codeR").value,$("msgR")), fb=compile($("codeB").value,$("msgB"));
   const st=$("status");
-  if(!fr||!fb){ st.style.color="var(--red)"; st.textContent="⚠️ Sửa lỗi code trước"; return; }
-  running=false; cancelAnimationFrame(raf);
+  if(!compile($("codeR").value,$("msgR"))||!compile($("codeB").value,$("msgB"))){
+    st.style.color="var(--red)"; st.textContent="⚠️ Sửa lỗi code trước"; return; }
+  clearTimeout(hen); running=false; cancelAnimationFrame(raf);
   st.style.color="var(--fg)";
-  let w=0,l=0,d=0;
   const srcR=$("codeR").value, srcB=$("codeB").value;
+  let w=0,l=0,hw=0,hl=0;
   for(let i=0;i<N;i++){
-    // PHẢI biên dịch lại mỗi trận: nếu dùng lại, biến nhớ của chiến thuật còn sót từ trận trước
-    const r=motTran(compile(srcR,_dummyMsg), compile(srcB,_dummyMsg));
-    if(r>0)w++; else if(r<0)l++; else d++;
-    if(i%10===9){ st.textContent="🏁 Đang chạy… "+(i+1)+"/"+N+" (thắng "+w+")";
-      await new Promise(r2=>setTimeout(r2,0)); }   // nhả nhịp cho trình duyệt vẽ tiến độ
+    const r=motTranBO3(srcR,srcB);                // biên dịch mới mỗi hiệp (trong taoHiep)
+    if(r.kq>0)w++; else l++; hw+=r.wR; hl+=r.wB;
+    if(i%4===3){ st.textContent="🏁 Đang chạy… "+(i+1)+"/"+N+" trận (thắng "+w+")";
+      await new Promise(r2=>setTimeout(r2,0)); }
   }
   resetMatch();
   st.style.color = w>l?"var(--good)" : (l>w?"var(--red)":"var(--muted)");
-  st.textContent="🏁 "+N+" trận — "+nmR()+" thắng "+w+" ("+Math.round(100*w/N)+"%) · thua "+l+" · hòa "+d;
+  st.textContent="🏁 "+N+" trận BO3 — "+nmR()+" thắng "+w+" trận ("+Math.round(100*w/N)+"%) · thua "+l+" · hiệp "+hw+"–"+hl;
 }
 
 // ---------- UI ----------
@@ -530,9 +601,10 @@ $("saveR").onclick=()=>{ // lưu code hiện tại vào thư viện máy này (d
   setTimeout(()=>{if(msg.textContent.startsWith("✓")){msg.textContent="";msg.className="msg";}},2500);
 };
 $("go").onclick=start;
-$("quick").onclick=()=>dauNhanh(50);
+$("quick").onclick=()=>dauNhanh(20);
+$("san").onchange=e=>{ const d=+e.target.value; R=d/200; WHITE=R-0.05; clearTimeout(hen); resetMatch(); };
 document.addEventListener("keydown",e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();start();} });
-$("reset").onclick=()=>{score={r:0,b:0};$("scR").textContent=0;$("scB").textContent=0;resetMatch();};
+$("reset").onclick=()=>{clearTimeout(hen);tran=null;$("scR").textContent=0;$("scB").textContent=0;resetMatch();};
 $("speed").onclick=e=>{speedMul=speedMul>=5?1:speedMul+1;e.target.textContent="Tốc độ: "+speedMul+"×";};
 $("rays").onclick=e=>{showRays=!showRays;e.target.textContent="👁️ Tia: "+(showRays?"Hiện":"Ẩn");draw();};
 // ---- Copy / Dán code (bằng chữ, không dùng file) ----
